@@ -1,3 +1,5 @@
+`README.md`
+
 ---
 
 # Finance Manager App
@@ -71,9 +73,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For any inquiries or support, feel free to reach out:
 
-- **Email**: mithunrajan77@gmail.com
+- **Email**: youremail@example.com
 - **GitHub Issues**: https://github.com/yourusername/finfree/issues
 
 ---
 
-Feel free to customize the file further based on your specific needs, such as adding links to images, the license, and your email.
