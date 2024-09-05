@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Currency Converter',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -28,10 +28,10 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Currency Converter'),
     );
   }
 }
@@ -55,16 +55,24 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  double _amount = 0;
 
-  void _incrementCounter() {
+  TextEditingController _controller = TextEditingController();
+
+  void _clearText() {
+    _controller.clear();  // Clears the text in the TextField
+    _calculate("0");
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();  // Clean up the controller when the widget is disposed
+    super.dispose();
+  }
+
+  void _calculate(String usd) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _amount = int.parse(usd)*83.99;
     });
   }
 
@@ -76,6 +84,13 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+    OutlineInputBorder border = const OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Color.fromARGB(166, 37, 44, 30),
+          style: BorderStyle.solid,
+        ),
+        borderRadius: BorderRadius.all(Radius.circular(40))
+    );
     return Scaffold(
       appBar: AppBar(
         // TRY THIS: Try changing the color here to a specific color (to
@@ -87,39 +102,57 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+            Container(
+              margin: const EdgeInsets.only(bottom: 20),
+              child: Text("₹${_amount.toStringAsFixed(2)}",
+              style: const TextStyle(
+                fontSize: 75,
+                fontWeight: FontWeight.w500,
+                color: Color.fromARGB(192, 34, 43, 26)
+              ),
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+          Container(
+            padding: const EdgeInsets.all(20.0),
+            child: TextField(
+              controller: _controller,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(
+                fontSize: 15
+              ),
+              decoration: InputDecoration(
+                hintText: "Enter the amount in USD",
+                filled: true,
+                fillColor: const Color.fromARGB(119, 239, 240, 228),
+                focusedBorder: border,
+                enabledBorder: border,
+                prefixIcon: const Icon(Icons.monetization_on,
+                color: Color.fromARGB(192, 34, 43, 26)
+                )
+              ),
+            ),
+          ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // Access the value of the TextField using the controller
+                String enteredText = _controller.text;
+                _calculate(enteredText);
+                // You can also display it in the UI, show an alert, or store it in a variable
+              },
+              child: Text('Convert'),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+        floatingActionButton: FloatingActionButton(
+          onPressed: _clearText,
+          tooltip: 'Clear',
+          child: const Icon(Icons.clear),
+        ),
+    );// This trailing comma makes auto-formatting nicer for build methods.
   }
 }
