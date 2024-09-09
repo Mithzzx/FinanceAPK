@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:finance_apk/Currency%20Converter/App_1.dart';
+import 'package:finance_apk/Side Apps/app_1.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
