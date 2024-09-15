@@ -41,10 +41,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _refresh()
   {
-    print("hoi");
+    return;
   }
 
-  SizedBox _Forcast_Card(icon,temp,time)
+  SizedBox _forecastCard(icon,temp,time)
   {
     return SizedBox(
         width:100,
@@ -72,30 +72,27 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  SizedBox _Add_Info_Card(image,name,info)
+  Padding _addInfoCard(image,name,info)
   {
-    double iconsize= 50;
-    return SizedBox(
-      width:130,
-      height: 220,
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-            children : [SizedBox(
-              width:iconsize,
-              height: iconsize,
-              child: image,
-            ),
-              const SizedBox(height: 12),
-              Text(name),
-              const SizedBox(height: 12),
-              Text(info,
-                style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500
-                ),)
-            ]
-        ),
+    double iconSize= 50;
+
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+          children : [SizedBox(
+            width:iconSize,
+            height: iconSize,
+            child: image,
+          ),
+            const SizedBox(height: 12),
+            Text(name),
+            const SizedBox(height: 12),
+            Text(info,
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500
+              ),)
+          ]
       ),
     );
   }
@@ -124,8 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-                width:400,
+            SizedBox(
                 height: 200,
                 child: Card(
                     clipBehavior: Clip.antiAlias,
@@ -134,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: [
                         ClipRect(
                           child:  Ink.image(
-                            image:const AssetImage('asset/cloud_1.jpg'),
+                            image:const AssetImage('asset/pexels-eberhardgross-844297.jpg'),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -147,10 +143,10 @@ class _MyHomePageState extends State<MyHomePage> {
                               Row(
                                 children: [],
                               ),
-                              Text("Benglore",
+                              Text("Bangalore",
                                   style: TextStyle(
                                     fontSize: 20,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w600,
                                   )
                               )
                             ],
@@ -195,37 +191,38 @@ class _MyHomePageState extends State<MyHomePage> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  _Forcast_Card(const Icon(Icons.cloud),"19°","3:00"),
-                  _Forcast_Card(const Icon(Icons.cloud),"18°","4:00"),
-                  _Forcast_Card(const Icon(Icons.cloud),"17°","5:00"),
-                  _Forcast_Card(const Icon(Icons.cloud),"16°","6:00"),
-                  _Forcast_Card(const Icon(Icons.cloud),"15°","7:00"),
-                  _Forcast_Card(const Icon(Icons.cloud),"15°","8:00"),
-                  _Forcast_Card(const Icon(Icons.cloud),"14°","9:00"),
-                  _Forcast_Card(const Icon(Icons.cloud),"13°","10:00"),
+                  _forecastCard(const Icon(Icons.cloud),"19°","3:00"),
+                  _forecastCard(const Icon(Icons.cloud),"18°","4:00"),
+                  _forecastCard(const Icon(Icons.cloud),"17°","5:00"),
+                  _forecastCard(const Icon(Icons.cloud),"16°","6:00"),
+                  _forecastCard(const Icon(Icons.cloud),"15°","7:00"),
+                  _forecastCard(const Icon(Icons.cloud),"15°","8:00"),
+                  _forecastCard(const Icon(Icons.cloud),"14°","9:00"),
+                  _forecastCard(const Icon(Icons.cloud),"13°","10:00"),
                 ],
               ),
             ),
             const SizedBox(height: 30,),
-            const Text("Additional Informations",
+            const Text("Additional Information",
               style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 16,),
             Row(
-                  children: [
-                    _Add_Info_Card(Image.asset(
-                      'asset/001-humidity.png',
-                      fit: BoxFit.cover,),"Humidity","000"),
-                    _Add_Info_Card(Image.asset(
-                      'asset/002-windy.png',
-                      fit: BoxFit.cover,),"Wind Speed","000"),
-                    _Add_Info_Card(Image.asset(
-                      'asset/003-gauge.png',
-                      fit: BoxFit.cover,
-                      scale: 0.01,),"Pressure","000"),
-                  ],
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _addInfoCard(Image.asset(
+                  'asset/001-humidity.png',
+                  fit: BoxFit.cover,),"Humidity","000"),
+                _addInfoCard(Image.asset(
+                  'asset/002-windy.png',
+                  fit: BoxFit.cover,),"Wind Speed","000"),
+                _addInfoCard(Image.asset(
+                  'asset/003-gauge.png',
+                  fit: BoxFit.cover,
+                  scale: 0.01,),"Pressure","000"),
+              ],
             )
           ],
         ),
