@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:finance_apk/secreats.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -57,11 +61,43 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   double _amount = 0;
 
+<<<<<<< Updated upstream
   TextEditingController _controller = TextEditingController();
 
   void _clearText() {
     _controller.clear();  // Clears the text in the TextField
     _calculate("0");
+=======
+  @override
+  void initState() {
+    super.initState();
+    getCurrentWeather();
+  }
+
+  Future getCurrentWeather() async {
+    String cityName = "Bengaluru,in";
+    try {
+      final res = await http.get(
+          Uri.parse(
+              "https://api.openweathermap.org/data/2.5/forecast?q=$cityName&APPID=$myApiKey"));
+
+      final data = jsonDecode(res.body);
+
+      if (data['cod'] != "200")
+      {
+        throw "An unexpected Error occurred";
+      }
+      print(data["list"][0]["main"]["temp"]);
+
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  void _refresh()
+  {
+    return;
+>>>>>>> Stashed changes
   }
 
   @override
@@ -79,8 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
+    // by the _incrementCounter method above
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
@@ -101,6 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
+<<<<<<< Updated upstream
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -146,6 +182,121 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text('Convert'),
             ),
           ],
+=======
+      body:Container(
+        padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                  height: 200,
+                  child: Card(
+                      clipBehavior: Clip.antiAlias,
+                      elevation:20,
+                      child: Stack(
+                        children: [
+                          ClipRect(
+                            child:  Ink.image(
+                              image:const AssetImage('asset/pexels-eberhardgross-844297.jpg'),
+                              height: 200,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Row(
+                                  children: [],
+                                ),
+                                Text("Bangalore",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600,
+                                    )
+                                )
+                              ],
+                            ),
+                          ),
+                          const Padding(
+                            padding:EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.cloud),
+                                    SizedBox(width: 12,),
+                                    Text("Cloudy",
+                                      style: TextStyle(
+                                        fontSize: 30,
+                                      ),),
+                                  ],
+                                ),
+                                Text("20°",
+                                    style: TextStyle(
+                                      fontSize: 50,
+                                      fontWeight: FontWeight.w600,
+                                    )
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                  )
+              ),
+              const SizedBox(height: 30,),
+              const Text("Forecast",
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 16,),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _forecastCard(const Icon(Icons.cloud),"19°","3:00"),
+                    _forecastCard(const Icon(Icons.cloud),"18°","4:00"),
+                    _forecastCard(const Icon(Icons.cloud),"17°","5:00"),
+                    _forecastCard(const Icon(Icons.cloud),"16°","6:00"),
+                    _forecastCard(const Icon(Icons.cloud),"15°","7:00"),
+                    _forecastCard(const Icon(Icons.cloud),"15°","8:00"),
+                    _forecastCard(const Icon(Icons.cloud),"14°","9:00"),
+                    _forecastCard(const Icon(Icons.cloud),"13°","10:00"),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30,),
+              const Text("Additional Information",
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 16,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _addInfoCard(Image.asset(
+                    'asset/001-humidity.png',
+                    fit: BoxFit.cover,),"Humidity","000"),
+                  _addInfoCard(Image.asset(
+                    'asset/002-windy.png',
+                    fit: BoxFit.cover,),"Wind Speed","000"),
+                  _addInfoCard(Image.asset(
+                    'asset/003-gauge.png',
+                    fit: BoxFit.cover,
+                    scale: 0.01,),"Pressure","000"),
+                ],
+              )
+            ],
+          ),
+>>>>>>> Stashed changes
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -156,3 +307,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );// This trailing comma makes auto-formatting nicer for build methods.
   }
 }
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
