@@ -13,22 +13,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Currency Converter',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
+        colorSchemeSeed: Colors.pinkAccent,
+        brightness: Brightness.light,
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Currency Converter'),
@@ -111,7 +97,6 @@ class _MyHomePageState extends State<MyHomePage> {
               style: const TextStyle(
                 fontSize: 75,
                 fontWeight: FontWeight.w500,
-                color: Color.fromARGB(192, 34, 43, 26)
               ),
               ),
             ),
@@ -126,11 +111,9 @@ class _MyHomePageState extends State<MyHomePage> {
               decoration: InputDecoration(
                 hintText: "Enter the amount in USD",
                 filled: true,
-                fillColor: const Color.fromARGB(119, 239, 240, 228),
                 focusedBorder: border,
                 enabledBorder: border,
-                prefixIcon: const Icon(Icons.monetization_on,
-                color: Color.fromARGB(192, 34, 43, 26)
+                prefixIcon: const Icon(Icons.monetization_on
                 )
               ),
             ),
