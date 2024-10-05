@@ -18,11 +18,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Finance APK',
       theme: ThemeData(
-        colorSchemeSeed: Colors.pinkAccent,
-        brightness: Brightness.light,
+        colorSchemeSeed: Colors.blue,
+        brightness: Brightness.dark,
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Currency Converter'),
+      home: const MyHomePage(title: 'Home Page'),
     );
   }
 }
@@ -43,9 +43,38 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(appBar: AppBar(),
-      );
+    return Scaffold(
+      body: const SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+          child: Column(
+            children: [
+              Placeholder(
+                fallbackHeight: 200,
+                fallbackWidth: 200,
+              ),
+              Text('Home Page Content'),
+            ],
+          )),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.business),
+            label: 'Business',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.school),
+            label: 'School',
+          ),
+        ],
+        // Customizations
+        iconSize: 20, // Decrease the icon size
+        selectedLabelStyle: TextStyle(fontSize: 12), // Decrease label font size
+        unselectedLabelStyle: TextStyle(fontSize: 10), // Unselected label font size
+      ),
+    );
   }
 }
-
-
