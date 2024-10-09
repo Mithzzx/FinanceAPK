@@ -1,5 +1,9 @@
+import 'package:finance_apk/Pages/budgets.dart';
+import 'package:finance_apk/main.dart';
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
+
+MyHomePageState myHomePage = MyHomePageState();
 
 Widget fab1(){
   return Padding(
@@ -17,16 +21,16 @@ Widget fab1(){
   );
 }
 
-Widget bottomNavBar1(){
+Widget bottomNavBar1(theme){
   return Stack(
     alignment: Alignment.bottomCenter,
     children: [
       ConvexAppBar(
         style: TabStyle.fixedCircle,
         cornerRadius: 25,
-        //backgroundColor: widget.theme.canvasColor,
+        backgroundColor: theme.canvasColor,
         color: Colors.white,
-        //activeColor: widget.theme.canvasColor,
+        activeColor: theme.canvasColor,
         items: const [
           TabItem(
             icon: Icon(null), // Larger Icon
@@ -74,14 +78,51 @@ Widget bottomNavBar1(){
             selectedFontSize: 10,
             unselectedFontSize: 8,
             onTap: (index) {
+              if (index != myHomePage.selectedIndex) {
+                myHomePage.onItemTapped(index);
+
+                if (index == 0){
+                  Navigator.push(
+                      myHomePage.context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                  );
+                if (index == 1){
+                  Navigator.push(
+                      myHomePage.context,
+                      MaterialPageRoute(builder: (context) => BudgetsPage()),
+                  );
+                }
+              }
               // Skip the center button
               if (index != 2) {
                 //widget.onTap(index);
               }
-            },
+            }},
           ),
         ),
       ),
     ],
   );
+}
+
+// lib/custom_app_bar.dart
+
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+
+  // Constructor to accept the title as a parameter
+  const CustomAppBar({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: Text(title),
+      centerTitle: true,
+      backgroundColor: Colors.blue,
+    );
+  }
+
+  // This is necessary to specify the size of the AppBar
+  @override
+  Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }

@@ -1,3 +1,5 @@
+import 'package:finance_apk/Components/AppBar/appbar1.dart';
+import 'package:finance_apk/Pages/budgets.dart';
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 
@@ -27,7 +29,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Home Page'),
+      home: MyHomePage(title: "title")
     );
   }
 }
@@ -37,19 +39,19 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyHomePage> createState() => MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
+class MyHomePageState extends State<MyHomePage> {
+  int selectedIndex = 0;
 
-  void _onItemTapped(int index) {
+  void onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      selectedIndex = index;
     });
   }
 
-  void _onPressed() {
+  void onPressed() {
   }
 
   Widget SlidingAccountsCard(Account account) {
@@ -155,7 +157,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
 
-    List<Widget> SACointainers = _BuildSlidingAccountsCon(accounts);
+    List<Widget> SACointainers = BuildSlidingAccountsCon(accounts);
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -169,12 +171,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                     IconButton(
-                        onPressed: _onPressed,
+                        onPressed: onPressed,
                         icon: const Icon(Icons.notifications),
                         iconSize: topIconSize,
                     ),
                     IconButton(
-                        onPressed: _onPressed,
+                        onPressed: onPressed,
                         icon: const Icon(Icons.settings),
                       iconSize: topIconSize,
                     )
@@ -183,7 +185,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Row(
                     children: [
                       IconButton(
-                        onPressed: _onPressed,
+                        onPressed: onPressed,
                         icon: const Icon(Icons.menu_sharp),
                         iconSize: topIconSize,
                       ),
@@ -227,7 +229,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           const SizedBox(height: 5,),
                           Row(
                             children: [
-                              FilledButton.tonal(onPressed: _onPressed,
+                              FilledButton.tonal(onPressed: onPressed,
                                   style: ButtonStyle(
                                    minimumSize: MaterialStateProperty.all(const Size(85, 35)),
                                     padding: MaterialStateProperty.all<EdgeInsetsGeometry>
@@ -250,7 +252,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     ],
                                   )
                               ),
-                              TextButton(onPressed: _onPressed, 
+                              TextButton(onPressed: onPressed,
                                   child: const Row(
                                     children: [
                                       Text("Cashback saved",
@@ -368,72 +370,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ],
           )),
-      bottomNavigationBar:Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          ConvexAppBar(
-            style: TabStyle.fixedCircle,
-            cornerRadius: 25,
-            backgroundColor: Theme.of(context).canvasColor,
-            color: Colors.white,
-            activeColor: Theme.of(context).canvasColor,
-            items: const [
-              TabItem(
-                icon: Icon(null), // Larger Icon
-                title: '', // No title for the middle icon
-              ),
-            ],
-            initialActiveIndex: 0, // optional, default as 0
-            elevation: 5,
-            height: 60, // Adjust for visual preference
-            curveSize: 90,
-          ),
-          SizedBox(
-            height: 85, // Set your desired height here
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(30),
-                topRight: Radius.circular(30),
-              ),
-              child: BottomNavigationBar(
-                type: BottomNavigationBarType.fixed,
-                items: const <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.home),
-                    label: 'Home',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.account_balance_wallet),
-                    label: 'Budgets',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(null), // Placeholder for the center button
-                    label: '',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.access_time_outlined),
-                    label: 'Plannings',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.bar_chart),
-                    label: 'Stats',
-                  ),
-                ],
-                currentIndex: _selectedIndex,
-                iconSize: 27,
-                selectedFontSize: 10,
-                unselectedFontSize: 8,
-                onTap: (index) {
-                  // Skip the center button
-                  if (index != 2) {
-                    _onItemTapped(index);
-                  }
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
+      bottomNavigationBar:bottomNavBar1(Theme.of(context)),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(top: 17), // Move the button down
         child: FloatingActionButton(
@@ -451,7 +388,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  _BuildSlidingAccountsCon(accounts) {
+  BuildSlidingAccountsCon(accounts) {
     List<Widget> containers = [];
     var blankcard = Card(
       elevation: 3,
