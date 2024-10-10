@@ -17,13 +17,13 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light,
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Currency Converter'),
+      home: const MyHomePage1(title: 'Currency Converter'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class MyHomePage1 extends StatefulWidget {
+  const MyHomePage1({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -37,10 +37,10 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyHomePage1> createState() => _MyHomePage1State();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePage1State extends State<MyHomePage1> {
   double _amount = 0;
 
   TextEditingController _controller = TextEditingController();
