@@ -1,4 +1,4 @@
-import 'package:finance_apk/Pages/recordspage.dart';
+import 'package:finance_apk/Pages/morepage.dart';
 import 'package:flutter/material.dart';
 import 'Components/AppBar/bottom_nav_bar.dart';
 import 'Pages/budgets.dart';
@@ -13,14 +13,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-      ),
-      darkTheme: ThemeData(
+        colorSchemeSeed: Colors.blue,
         brightness: Brightness.dark,
-        primaryColor: Colors.black,
-        secondaryHeaderColor: Colors.tealAccent,
-        // Add more custom dark theme properties here
-      ), // This sets the dark theme
-      themeMode: ThemeMode.light,
+      ),
       home: MainPage(), // MainPage is the home screen with navigation
     );
   }

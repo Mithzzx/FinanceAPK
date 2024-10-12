@@ -11,7 +11,7 @@ class RecordsPageState extends State<RecordsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Records'),
+        title: const Text('More'),
       ),
       body:  const Center(
         child: Text('Welcome this is Records Page!'),

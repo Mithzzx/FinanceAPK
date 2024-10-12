@@ -50,6 +50,7 @@ class CustomBottomNavBar extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         children: [
           ConvexAppBar(
+            shadowColor: Colors.grey[800],
             style: TabStyle.fixedCircle,
             cornerRadius: conBorderRadius,
             backgroundColor: theme.canvasColor,
