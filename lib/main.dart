@@ -1,3 +1,4 @@
+import 'package:finance_apk/Pages/addpage.dart';
 import 'package:finance_apk/Pages/morepage.dart';
 import 'package:flutter/material.dart';
 import 'Components/AppBar/bottom_nav_bar.dart';
@@ -35,7 +36,7 @@ class _MainPageState extends State<MainPage> {
     BudgetsPage(),
     StatsPage(),
     StatsPage(),// From budgets_page.dart
-    RecordsPage()// From settings_page.dart
+    MorePage()// From settings_page.dart
   ];
 
   void _onItemTapped(int index) {
@@ -60,7 +61,11 @@ class _MainPageState extends State<MainPage> {
         padding: const EdgeInsets.only(top: 22), // Move the button down
         child: FloatingActionButton(
           onPressed: () {
-            //_onItemTapped(2); // Center button taps to "Add Page"
+            // Navigate to Add Transaction Page
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AddTransactionPage()),  // Navigate to the new page
+            );
           },
           elevation: 0,
           backgroundColor: Colors.green,

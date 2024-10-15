@@ -262,7 +262,7 @@ class HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Transform.translate(
-                      offset: const Offset(55,0),
+                      offset: const Offset(85,0),
                       child: Stack(
                         alignment: Alignment.centerRight,
                         children: [
