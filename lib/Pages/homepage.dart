@@ -1,3 +1,4 @@
+import 'package:finance_apk/Pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import '../backend/accounts.dart';
 
@@ -157,7 +158,7 @@ class HomePageState extends State<HomePage> {
                       iconSize: topIconSize,
                     ),
                     IconButton(
-                      onPressed: onPressed,
+                      onPressed: onSettingsPressed,
                       icon: const Icon(Icons.settings),
                       iconSize: topIconSize,
                     )
@@ -351,5 +352,13 @@ class HomePageState extends State<HomePage> {
             ),
           ],
         ));
+  }
+
+  void onSettingsPressed() {
+    print("Settings Pressed");
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SettingsPage()),
+    );
   }
 }
