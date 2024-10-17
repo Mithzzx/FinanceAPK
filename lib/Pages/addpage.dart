@@ -75,7 +75,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     IconButton(
                       onPressed: () {
                         Provider.of<ThemeProvider>(context, listen: false).setTheme(
-                            ThemeProvider.themes[1]);
+                          ThemeProvider.currentTheme.primaryColor,
+                        );
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => MainPage()),
@@ -138,14 +139,14 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             setState(() {
               _selectedTransactionType = type;
               if (type == 'Expense') {
-                Provider.of<ThemeProvider>(context, listen: false).setTheme(
-                    ThemeProvider.themes[3]);
+                Provider.of<ThemeProvider>(context, listen: false).setTempTheme(
+                    ThemeProvider.themes[0]);
               } else if (type == 'Income') {
-                Provider.of<ThemeProvider>(context, listen: false).setTheme(
-                    ThemeProvider.themes[2]);
+                Provider.of<ThemeProvider>(context, listen: false).setTempTheme(
+                    ThemeProvider.themes[1]);
               } else {
-                Provider.of<ThemeProvider>(context, listen: false).setTheme(
-                    ThemeProvider.themes[4]);
+                Provider.of<ThemeProvider>(context, listen: false).setTempTheme(
+                    ThemeProvider.themes[2]);
               }
             });
           },

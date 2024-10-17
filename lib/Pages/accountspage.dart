@@ -15,44 +15,47 @@ class _AccountsPageState extends State<AccountsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select Account'),
+        title: const Text('Select Account'),
       ),
-      body: ListView.separated(
-        itemCount: accounts.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: accounts[index].color,
-                shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.circular(8), // Optional: to make the corners rounded
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListView.separated(
+          itemCount: accounts.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: accounts[index].color,
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.circular(8), // Optional: to make the corners rounded
+                ),
+                child: Icon(
+                  accounts[index].accountType.icon,
+                  color: Colors.white,
+                ),
               ),
-              child: Icon(
-                accounts[index].accountType.icon,
-                color: Colors.white,
-              ),
-            ),
-            title: Text(accounts[index].name,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w500,
-                )),
-            subtitle: Text(accounts[index].accountType.name,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                )),
-            onTap: () {
-              widget.onAccountSelected(accounts[index].name);
-              Navigator.pop(context);
-            },
-          );
-        },
-        separatorBuilder: (context, index) {
-          return Divider();
-        },
+              title: Text(accounts[index].name,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                  )),
+              subtitle: Text(accounts[index].accountType.name,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                  )),
+              onTap: () {
+                widget.onAccountSelected(accounts[index].name);
+                Navigator.pop(context);
+              },
+            );
+          },
+          separatorBuilder: (context, index) {
+            return const Divider();
+          },
+        ),
       ),
     );
   }

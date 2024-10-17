@@ -1,22 +1,28 @@
+import 'package:finance_apk/Pages/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
+class colorIndex {
+  final Color c;
+  final int index;
 
+  colorIndex({required this.c, required this.index});
+}
 class _SettingsPageState extends State<SettingsPage> {
   Color selectedColor = Colors.blue;
-  bool isDarkMode = false;
 
-  final List<Color> colors = [
-    Colors.red,
-    Colors.green,
-    Colors.blue,
-    Colors.orange,
-    Colors.purple,
-    Colors.yellow,
-    Colors.cyan,
+  final List<colorIndex> colors = [
+    colorIndex(c: Colors.red, index: 0),
+    colorIndex(c: Colors.green, index: 1),
+    colorIndex(c: Colors.blue, index: 2),
+    colorIndex(c: Colors.orange, index: 3),
+    colorIndex(c: Colors.purple, index: 4),
+    colorIndex(c: Colors.yellow, index: 5),
+    colorIndex(c: Colors.cyan, index: 6),
   ];
 
   @override
@@ -47,7 +53,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     return GestureDetector(
                       onTap: () {
                         setState(() {
-                          selectedColor = color;
+                          selectedColor = color.c;
+                          Provider.of<ThemeProvider>(context, listen: false).setTheme(
+                              ThemeProvider.themes[color.index]);
                         });
                       },
                       child: Container(
@@ -55,7 +63,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: color,
+                          color: color.c,
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: selectedColor == color
@@ -74,10 +82,10 @@ class _SettingsPageState extends State<SettingsPage> {
             Divider(),
             SwitchListTile(
               title: Text('Dark Mode', style: Theme.of(context).textTheme.titleMedium),
-              value: isDarkMode,
+              value: !Provider.of<ThemeProvider>(context).isDarkMode,
               onChanged: (bool value) {
                 setState(() {
-                  isDarkMode = value;
+                  Provider.of<ThemeProvider>(context, listen: false).toggleBrightness();
                 });
               },
             ),

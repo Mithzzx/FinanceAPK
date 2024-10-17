@@ -24,7 +24,7 @@ class MorePageState extends State<MorePage> {
           itemCount: 10, // Number of items
           itemBuilder: (context, index) {
             return Card(
-              elevation: 5,
+              elevation: 1,
               child: SizedBox(
                 height: 100,
                 child: Column(

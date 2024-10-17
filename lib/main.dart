@@ -12,7 +12,7 @@ import 'Pages/theme_provider.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (context) => ThemeProvider(ThemeProvider.themes[1]), // Default theme
+      create: (context) => ThemeProvider(ThemeProvider.currentTheme), // Default theme
       child: MyApp(),
     ),
   );
@@ -30,6 +30,7 @@ class MyAppState extends State<MyApp> {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         return MaterialApp(
+          debugShowCheckedModeBanner: false,
           theme: themeProvider.themeData, // Use the theme from the provider
           home: MainPage(),
         );
@@ -96,8 +97,8 @@ class _MainPageState extends State<MainPage> {
                 },
               ),
             );
-            Provider.of<ThemeProvider>(context, listen: false).setTheme(
-              ThemeProvider.themes[2],
+            Provider.of<ThemeProvider>(context, listen: false).setTempTheme(
+              ThemeProvider.themes[1],
             );
           },
           elevation: 0,
