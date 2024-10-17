@@ -33,6 +33,10 @@ dependencies:
   http: ^1.2.2
   convex_bottom_bar: ^3.2.0
   smooth_page_indicator: ^1.2.0+3
+  provider: ^6.1.2
+  expressions: ^0.2.5+2
+  auto_size_text_field: ^2.2.4
+  auto_size_text: ^3.0.0
 
 
   # The following adds the Cupertino Icons font to your application.

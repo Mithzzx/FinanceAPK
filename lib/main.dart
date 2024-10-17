@@ -1,23 +1,39 @@
 import 'package:finance_apk/Pages/addpage.dart';
 import 'package:finance_apk/Pages/morepage.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'Components/AppBar/bottom_nav_bar.dart';
 import 'Pages/budgets.dart';
 import 'Pages/homepage.dart';
 import 'Pages/statspage.dart';
+import 'Pages/theme_provider.dart';
 
-void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+void main() {
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ThemeProvider(ThemeProvider.themes[1]), // Default theme
+      child: MyApp(),
+    ),
+  );
+}
+
+
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => MyAppState();
+}
+
+class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorSchemeSeed: Colors.blue,
-        brightness: Brightness.dark,
-      ),
-      home: MainPage(), // MainPage is the home screen with navigation
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          theme: themeProvider.themeData, // Use the theme from the provider
+          home: MainPage(),
+        );
+      },
     );
   }
 }
@@ -61,10 +77,27 @@ class _MainPageState extends State<MainPage> {
         padding: const EdgeInsets.only(top: 22), // Move the button down
         child: FloatingActionButton(
           onPressed: () {
-            // Navigate to Add Transaction Page
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => AddTransactionPage()),  // Navigate to the new page
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) => AddTransactionPage(),
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  const begin = Offset(0.0, 1.0);
+                  const end = Offset.zero;
+                  const curve = Curves.ease;
+
+                  var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                  var offsetAnimation = animation.drive(tween);
+
+                  return SlideTransition(
+                    position: offsetAnimation,
+                    child: child,
+                  );
+                },
+              ),
+            );
+            Provider.of<ThemeProvider>(context, listen: false).setTheme(
+              ThemeProvider.themes[2],
             );
           },
           elevation: 0,
