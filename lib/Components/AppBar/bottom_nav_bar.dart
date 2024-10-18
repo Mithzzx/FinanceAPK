@@ -63,7 +63,7 @@ class CustomBottomNavBar extends StatelessWidget {
               ),
             ],
             initialActiveIndex: 0, // optional, default as 0
-            elevation: 5,
+            elevation: 3,
             height: conNavBarHeight, // Adjust for visual preference
             curveSize: 90,
           ),

@@ -146,7 +146,7 @@ class HomePageState extends State<HomePage> {
         scrollDirection: Axis.vertical,
         child: Column(
           children: [
-            const SizedBox(height: 60,),
+            const SizedBox(height: 45,),
             Stack(
               children: [
                 Row(
@@ -269,7 +269,7 @@ class HomePageState extends State<HomePage> {
                         children: [
                           Card(
                               color: Colors.blue,
-                              elevation:20,
+                              elevation:3,
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 50),
                                 child: Container(
@@ -286,7 +286,7 @@ class HomePageState extends State<HomePage> {
                               )
                           ),
                           Card(
-                            elevation:20,
+                            elevation:3,
                             child: Container(
                               width: 195, // Set the width of the card
                               height: 130, // Set the height of the card

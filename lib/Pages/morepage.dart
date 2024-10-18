@@ -13,9 +13,9 @@ class MorePageState extends State<MorePage> {
         title: const Text('More'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(left: 22, right: 10, top: 22),
         child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2, // Two columns
             crossAxisSpacing: 10.0,
             mainAxisSpacing: 10.0,
@@ -38,16 +38,16 @@ class MorePageState extends State<MorePage> {
                         shape: BoxShape.rectangle,
                         borderRadius: BorderRadius.circular(8), // Rounded edges
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.image, // Placeholder icon
                         color: Colors.white,
                         size: 40,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
                       'Item $index',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),

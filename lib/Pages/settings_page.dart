@@ -6,12 +6,14 @@ class SettingsPage extends StatefulWidget {
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
+
 class colorIndex {
   final Color c;
   final int index;
 
   colorIndex({required this.c, required this.index});
 }
+
 class _SettingsPageState extends State<SettingsPage> {
   Color selectedColor = Colors.blue;
 
@@ -27,6 +29,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Settings'),
@@ -60,14 +64,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                       child: Container(
                         margin: EdgeInsets.symmetric(horizontal: 5),
-                        width: 40,
-                        height: 40,
+                        width: 42,
+                        height: 42,
                         decoration: BoxDecoration(
                           color: color.c,
-                          shape: BoxShape.circle,
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(8), // Rounded edges
                           border: Border.all(
-                            color: selectedColor == color
-                                ? Colors.white
+                            color: selectedColor == color.c
+                                ? (isDarkMode ? Colors.white : Colors.black.withAlpha(120))
                                 : Colors.transparent,
                             width: 2,
                           ),
@@ -82,7 +87,7 @@ class _SettingsPageState extends State<SettingsPage> {
             Divider(),
             SwitchListTile(
               title: Text('Dark Mode', style: Theme.of(context).textTheme.titleMedium),
-              value: !Provider.of<ThemeProvider>(context).isDarkMode,
+              value: isDarkMode,
               onChanged: (bool value) {
                 setState(() {
                   Provider.of<ThemeProvider>(context, listen: false).toggleBrightness();
