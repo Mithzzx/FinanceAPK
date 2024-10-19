@@ -46,6 +46,13 @@ class _AccountsPageState extends State<AccountsPage> {
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                   )),
+              trailing: Text(
+                '\$${accounts[index].balance.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               onTap: () {
                 widget.onAccountSelected(accounts[index].name);
                 Navigator.pop(context);

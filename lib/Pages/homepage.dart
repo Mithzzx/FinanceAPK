@@ -1,7 +1,7 @@
 import 'package:finance_apk/Pages/settings_page.dart';
 import 'package:flutter/material.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../backend/accounts.dart';
-
 
 class HomePage extends StatefulWidget {
   @override
@@ -9,15 +9,15 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
+  final PageController _pageController = PageController();
 
-  void onPressed() {
-  }
+  void onPressed() {}
 
   @override
   Widget build(BuildContext context) {
     double topIconSize = 27;
     double homePagePadding = 8;
-    double slidingAccountsPadding = homePagePadding+10;
+    double slidingAccountsPadding = homePagePadding + 10;
     double slidingAccountsSpacing = 10;
 
     Widget SlidingAccountsCard(Account account) {
@@ -27,8 +27,7 @@ class HomePageState extends State<HomePage> {
           children: [
             Container(
               height: 90,
-              width:
-              ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 14,
+              width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 14,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topRight,
@@ -50,11 +49,13 @@ class HomePageState extends State<HomePage> {
                 children: [
                   Row(
                     children: [
-                      Icon(account.accountType.icon,
+                      Icon(
+                        account.accountType.icon,
                         color: Colors.white,
                         size: 20,
                       ),
-                      Text(account.name,
+                      Text(
+                        account.name,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -63,19 +64,21 @@ class HomePageState extends State<HomePage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10,),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
-                      Text(account.balance.toString(),
+                      Text(
+                        account.balance.toString(),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Text(account.currency,
+                      Text(
+                        account.currency,
                         style: const TextStyle(
-                          color: Color.fromARGB(150, 255,255,255),
+                          color: Color.fromARGB(150, 255, 255, 255),
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
                         ),
@@ -92,26 +95,27 @@ class HomePageState extends State<HomePage> {
 
     Widget SlidingAccountsCon(cards) {
       return Container(
-          padding: EdgeInsets.symmetric(horizontal: slidingAccountsPadding),
-          width: MediaQuery.of(context).size.width,
-          child: Row(
-            children: [
-              Column(
-                children: [
-                  cards[0],
-                  SizedBox(height: slidingAccountsSpacing),
-                  cards[2],
-                ],
-              ),
-              SizedBox(width: slidingAccountsSpacing),
-              Column(children: [
+        padding: EdgeInsets.symmetric(horizontal: slidingAccountsPadding),
+        width: MediaQuery.of(context).size.width,
+        child: Row(
+          children: [
+            Column(
+              children: [
+                cards[0],
+                SizedBox(height: slidingAccountsSpacing),
+                cards[2],
+              ],
+            ),
+            SizedBox(width: slidingAccountsSpacing),
+            Column(
+              children: [
                 cards[1],
                 SizedBox(height: slidingAccountsSpacing),
                 cards[3],
               ],
-              ),
-            ],
-          )
+            ),
+          ],
+        ),
       );
     }
 
@@ -124,8 +128,8 @@ class HomePageState extends State<HomePage> {
           width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 14,
         ),
       );
-      int j=0;
-      for (var p = 0; p < accounts.length/4; p++) {
+      int j = 0;
+      for (var p = 0; p < accounts.length / 4; p++) {
         List<Widget> cards = [];
         for (var i = 0; i < 4; i++) {
           if (j < accounts.length) {
@@ -143,215 +147,272 @@ class HomePageState extends State<HomePage> {
     List<Widget> SACointainers = BuildSlidingAccountsCon(accounts);
 
     return SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            const SizedBox(height: 45,),
-            Stack(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      onPressed: onPressed,
-                      icon: const Icon(Icons.notifications),
-                      iconSize: topIconSize,
-                    ),
-                    IconButton(
-                      onPressed: onSettingsPressed,
-                      icon: const Icon(Icons.settings),
-                      iconSize: topIconSize,
-                    )
-                  ],
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: onPressed,
-                      icon: const Icon(Icons.menu_sharp),
-                      iconSize: topIconSize,
-                    ),
-                  ],
-                ),
-              ],
-            ), // Top Icons
-            const SizedBox(height: 10),
-            Stack(
-              children: [
-                Row(children: [
-                  SizedBox(width: homePagePadding+15),
+      scrollDirection: Axis.vertical,
+      child: Column(
+        children: [
+          const SizedBox(height: 45),
+          Stack(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    onPressed: onPressed,
+                    icon: const Icon(Icons.notifications),
+                    iconSize: topIconSize,
+                  ),
+                  IconButton(
+                    onPressed: onSettingsPressed,
+                    icon: const Icon(Icons.settings),
+                    iconSize: topIconSize,
+                  )
+                ],
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: onPressed,
+                    icon: const Icon(Icons.menu_sharp),
+                    iconSize: topIconSize,
+                  ),
+                ],
+              ),
+            ],
+          ), // Top Icons
+          const SizedBox(height: 10),
+          Stack(
+            children: [
+              Row(
+                children: [
+                  SizedBox(width: homePagePadding + 15),
                   Container(
                     width: 280,
                     height: 150,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 25,),
-                        const Text("TOTAL BALANCE",
-                            style:TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12,
-                            )
+                        const SizedBox(height: 25),
+                        const Text(
+                          "TOTAL BALANCE",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
                         ),
                         const Row(
                           children: [
-                            Text("₹",
-                                style:TextStyle(
-                                  fontSize: 36,
-                                )
+                            Text(
+                              "₹",
+                              style: TextStyle(
+                                fontSize: 36,
+                              ),
                             ),
-                            Text("13,370.98",
-                                style:TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 36,
-                                )
+                            Text(
+                              "13,370.98",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 36,
+                              ),
                             ),
                           ],
-                        ),// Total Balance
-                        const SizedBox(height: 5,),
+                        ), // Total Balance
+                        const SizedBox(height: 5),
                         Row(
                           children: [
-                            FilledButton.tonal(onPressed: onPressed,
-                                style: ButtonStyle(
-                                  minimumSize: MaterialStateProperty.all(const Size(85, 35)),
-                                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>
-                                    (const EdgeInsets.symmetric(horizontal: 5)),
-                                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+                            FilledButton.tonal(
+                              onPressed: onPressed,
+                              style: ButtonStyle(
+                                minimumSize: MaterialStateProperty.all(const Size(85, 35)),
+                                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                  const EdgeInsets.symmetric(horizontal: 5),
+                                ),
+                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Icon(Icons.monetization_on,size: 15,),
-                                    SizedBox(width: 2,),
-                                    Text("₹36.44",
-                                      style: TextStyle(
-                                        fontSize: 11.5,
-                                      ),),
-                                  ],
-                                )
+                              ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  Icon(
+                                    Icons.monetization_on,
+                                    size: 15,
+                                  ),
+                                  SizedBox(width: 2),
+                                  Text(
+                                    "₹36.44",
+                                    style: TextStyle(
+                                      fontSize: 11.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                            TextButton(onPressed: onPressed,
-                                child: const Row(
-                                  children: [
-                                    Text("Cashback saved",
+                            TextButton(
+                              onPressed: onPressed,
+                              child: const Row(
+                                children: [
+                                  Text(
+                                    "Cashback saved",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(bottom: 2),
+                                    child: Text(
+                                      " >",
                                       style: TextStyle(
-                                        fontSize: 11,
+                                        fontSize: 12,
                                       ),
                                     ),
-                                    Padding(
-                                      padding: EdgeInsets.only(bottom: 2),
-                                      child: Text(" >",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ))
+                                  ),
+                                ],
+                              ),
+                            )
                           ],
-                        ),// Cashback saved
+                        ), // Cashback saved
                       ],
                     ),
                   )
                 ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Transform.translate(
-                      offset: const Offset(85,0),
-                      child: Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          Card(
-                              color: Colors.blue,
-                              elevation:3,
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 50),
-                                child: Container(
-                                  width: 165, // Set the width of the card
-                                  height: 110, // Set the height of the card
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10), // Ensures image follows the card's rounded corners
-                                    child: Image.asset(
-                                      'asset/images/cards/card2.JPEG', // Replace with your image URL
-                                      fit: BoxFit.cover, // Ensures the image covers the entire card without distortion
-                                    ),
-                                  ),
-                                ),
-                              )
-                          ),
-                          Card(
-                            elevation:3,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Transform.translate(
+                    offset: const Offset(85, 0),
+                    child: Stack(
+                      alignment: Alignment.centerRight,
+                      children: [
+                        Card(
+                          color: Colors.blue,
+                          elevation: 3,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 50),
                             child: Container(
-                              width: 195, // Set the width of the card
-                              height: 130, // Set the height of the card
+                              width: 165, // Set the width of the card
+                              height: 110, // Set the height of the card
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10), // Ensures image follows the card's rounded corners
                                 child: Image.asset(
-                                  'asset/images/cards/card1.JPEG', // Replace with your image URL
+                                  'asset/images/cards/card2.JPEG', // Replace with your image URL
                                   fit: BoxFit.cover, // Ensures the image covers the entire card without distortion
                                 ),
                               ),
                             ),
                           ),
-                        ],
+                        ),
+                        Card(
+                          elevation: 3,
+                          child: Container(
+                            width: 195, // Set the width of the card
+                            height: 130, // Set the height of the card
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10), // Ensures image follows the card's rounded corners
+                              child: Image.asset(
+                                'asset/images/cards/card1.JPEG', // Replace with your image URL
+                                fit: BoxFit.cover, // Ensures the image covers the entire card without distortion
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              )
+            ],
+          ), // Total Balance
+          const SizedBox(height: 25),
+          SizedBox(
+            height: 208, // Adjust height as needed
+            child: PageView(
+              controller: _pageController,
+              children: SACointainers,
+            ),
+          ), // Sliding Accounts
+          const SizedBox(height: 10),
+          SmoothPageIndicator(
+            controller: _pageController,
+            count: SACointainers.length,
+            effect: ExpandingDotsEffect(
+              dotHeight: 8,
+              dotWidth: 8,
+              activeDotColor: Theme.of(context).brightness == Brightness.dark
+                  ? Theme.of(context).secondaryHeaderColor : Theme.of(context).primaryColor,
+              dotColor: Colors.grey,
+            ),
+          ), // Dot Indicator
+          const SizedBox(height: 10),
+      Card(
+        elevation: 3,
+        child: SizedBox(
+          height: 220,
+          width: MediaQuery.of(context).size.width - (homePagePadding + 35),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 22, right: 22),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "TITLE",
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
-                    )
+                    ),
+                    TextButton(
+                      onPressed: onPressed,
+                      child: const Text(
+                        "SHOW MORE",
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ],
-                )
-              ],
-            ),// Total Balance
-            const SizedBox(height:25),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              physics: const PageScrollPhysics(),
-              child: Row(
-                children: SACointainers,
+                ),
               ),
-            ),// Sliding Accounts
-            const SizedBox(height: 10),
-            Card(
-              elevation: 3,
-              child: SizedBox(
-                height: 220,
-                width: MediaQuery.of(context).size.width-(homePagePadding+35),
-                child: const Center(child: Text("DEMO CARD !")),
-              ),
+              const Center(child: Text("DEMO CONTENT")),
+            ],
+          ),
+        ),
+      ),
+          const SizedBox(height: 10),
+          Card(
+            elevation: 3,
+            child: SizedBox(
+              height: 220,
+              width: MediaQuery.of(context).size.width - (homePagePadding + 35),
+              child: const Center(child: Text("DEMO CARD 2")),
             ),
-            const SizedBox(height: 10),
-            Card(
-              elevation: 3,
-              child: SizedBox(
-                height: 220,
-                width: MediaQuery.of(context).size.width-(homePagePadding+35),
-                child: const Center(child: Text("DEMO CARD 2")),
-              ),
+          ),
+          const SizedBox(height: 10),
+          Card(
+            elevation: 3,
+            child: SizedBox(
+              height: 220,
+              width: MediaQuery.of(context).size.width - (homePagePadding + 35),
+              child: const Center(child: Text("DEMO CARD 3")),
             ),
-            const SizedBox(height: 10),
-            Card(
-              elevation: 3,
-              child: SizedBox(
-                height: 220,
-                width: MediaQuery.of(context).size.width-(homePagePadding+35),
-                child: const Center(child: Text("DEMO CARD 3")),
-              ),
+          ),
+          const SizedBox(height: 10),
+          Card(
+            elevation: 3,
+            child: SizedBox(
+              height: 220,
+              width: MediaQuery.of(context).size.width - (homePagePadding + 35),
+              child: const Center(child: Text("DEMO CARD 4")),
             ),
-            const SizedBox(height: 10),
-            Card(
-              elevation: 3,
-              child: SizedBox(
-                height: 220,
-                width: MediaQuery.of(context).size.width-(homePagePadding+35),
-                child: const Center(child: Text("DEMO CARD 4")),
-              ),
-            ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 
   void onSettingsPressed() {

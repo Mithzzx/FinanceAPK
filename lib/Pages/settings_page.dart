@@ -25,6 +25,8 @@ class _SettingsPageState extends State<SettingsPage> {
     colorIndex(c: Colors.purple, index: 4),
     colorIndex(c: Colors.yellow, index: 5),
     colorIndex(c: Colors.cyan, index: 6),
+    colorIndex(c: Colors.pink, index: 7),
+    colorIndex(c: Colors.deepPurple, index: 8),
   ];
 
   @override
@@ -64,8 +66,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                       child: Container(
                         margin: EdgeInsets.symmetric(horizontal: 5),
-                        width: 42,
-                        height: 42,
+                        width: 30,
+                        height: 30,
                         decoration: BoxDecoration(
                           color: color.c,
                           shape: BoxShape.rectangle,
