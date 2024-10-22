@@ -37,6 +37,8 @@ dependencies:
   expressions: ^0.2.5+2
   auto_size_text_field: ^2.2.4
   auto_size_text: ^3.0.0
+  path: ^1.9.0
+  sqflite: ^2.4.0
 
 
 

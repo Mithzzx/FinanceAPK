@@ -28,6 +28,11 @@ class ThemeProvider extends ChangeNotifier {
       brightness: brightness,
       canvasColor: brightness == Brightness.dark ? Colors.black : null,
       scaffoldBackgroundColor: brightness == Brightness.dark ? Colors.black : null,
+      appBarTheme: AppBarTheme(
+        backgroundColor: brightness == Brightness.dark ? Colors.black : null,
+        scrolledUnderElevation: 3,
+        shadowColor: brightness == Brightness.dark ? Colors.grey[800] : null,
+      ),
       cardTheme: CardTheme(
         color: brightness == Brightness.dark ? const Color.fromARGB(255, 25, 25, 25) : null,
       ),
@@ -37,6 +42,7 @@ class ThemeProvider extends ChangeNotifier {
         ),
       ),
     );
+    currentTheme = _themeData; // Update currentTheme
     notifyListeners(); // Notifies widgets about theme change
   }
 
@@ -65,6 +71,11 @@ class ThemeProvider extends ChangeNotifier {
     brightness: Brightness.dark,
     canvasColor: Colors.black,
     scaffoldBackgroundColor: Colors.black,
+    appBarTheme: AppBarTheme(
+      scrolledUnderElevation: 3,
+      shadowColor: Colors.grey[800],
+      backgroundColor:Colors.black,
+    ),
     cardTheme: const CardTheme(
       color: Color.fromARGB(255, 25, 25, 25),
     ),
