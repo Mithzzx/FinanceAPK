@@ -13,9 +13,8 @@ class MorePageState extends State<MorePage> {
         title: const Text('More'),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(left: 10, right: 10),
+        padding: const EdgeInsets.only(left: 22, right: 10, top: 22),
         child: GridView.builder(
-          physics: const BouncingScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2, // Two columns
             crossAxisSpacing: 10.0,
