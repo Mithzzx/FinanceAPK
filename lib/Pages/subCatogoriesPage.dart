@@ -107,7 +107,7 @@ class SubCategoriesPage extends StatelessWidget {
                             },
                           ),
                           if (index < category.subCategories!.length - 1)
-                            const Padding(
+                             const Padding(
                               padding: EdgeInsets.only(left: 16.0, right: 16.0),
                               child: Divider(thickness: 0.3, height: 3,),
                             ),

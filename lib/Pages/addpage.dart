@@ -1,14 +1,14 @@
-// lib/Pages/addpage.dart
-import 'package:finance_apk/Pages/accountspage.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:expressions/expressions.dart';
+import 'package:finance_apk/Pages/theme_provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:finance_apk/Pages/theme_provider.dart';
-import 'package:expressions/expressions.dart';
-import 'package:auto_size_text/auto_size_text.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../main.dart';
 import '../backend/Categories.dart';
-import 'categoriespage.dart';
+import '../backend/accounts.dart'; // Import the accounts.dart file
 
 class AddTransactionPage extends StatefulWidget {
   final Category? category;
@@ -28,6 +28,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   late String selectedAmount;
   Category? _selectedCategory;
   SubCategory? _selectedSubCategory;
+  final PageController _pageController = PageController(viewportFraction: 0.8);
 
   @override
   void initState() {
@@ -106,16 +107,45 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             ),
           ),
           Container(
+            width: double.infinity,
             color: adjustedColor,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildTransactionTypeButton('Income'),
-                  _buildTransactionTypeButton('Expense'),
-                  _buildTransactionTypeButton('Transfer'),
-                ],
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: CupertinoSegmentedControl<String>(
+                children: const {
+                  'Income': Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Text('Income'),
+                  ),
+                  'Expense': Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Text('Expense'),
+                  ),
+                  'Transfer': Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Text('Transfer'),
+                  ),
+                },
+                onValueChanged: (value) {
+                  setState(() {
+                    _selectedTransactionType = value;
+                    if (value == 'Expense') {
+                      Provider.of<ThemeProvider>(context, listen: false).setTempTheme(
+                          ThemeProvider.themes[0]);
+                    } else if (value == 'Income') {
+                      Provider.of<ThemeProvider>(context, listen: false).setTempTheme(
+                          ThemeProvider.themes[1]);
+                    } else {
+                      Provider.of<ThemeProvider>(context, listen: false).setTempTheme(
+                          ThemeProvider.themes[2]);
+                    }
+                  });
+                },
+                groupValue: _selectedTransactionType,
+                borderColor: Theme.of(context).colorScheme.primary,
+                selectedColor: Theme.of(context).colorScheme.primary,
+                unselectedColor: Theme.of(context).colorScheme.secondaryContainer,
+                pressedColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
               ),
             ),
           ),
@@ -123,17 +153,34 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             color: adjustedColor,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: _selectedTransactionType == 'Transfer'
-                    ? [
-                  _buildAccountButton('From Account'),
-                  const Icon(Icons.arrow_forward, color: Colors.white),
-                  _buildAccountButton('To Account'),
-                ]
-                    : [
-                  _buildAccountButton('Account'),
-                  _buildCategoryButton('Category'),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 150,
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: accounts.length, // Use the length of the accounts list
+                      onPageChanged: (index) {
+                        setState(() {
+                          _selectedAccount = accounts[index].name; // Update the selected account
+                        });
+                      },
+                      itemBuilder: (context, index) {
+                        return _buildAccountCard(accounts[index]); // Pass the account object
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SmoothPageIndicator(
+                    controller: _pageController,
+                    count: accounts.length, // Use the length of the accounts list
+                    effect: WormEffect(
+                      dotHeight: 8,
+                      dotWidth: 8,
+                      activeDotColor: Theme.of(context).colorScheme.primary,
+                      dotColor: Theme.of(context).colorScheme.secondaryContainer,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -146,120 +193,65 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     );
   }
 
-  Widget _buildTransactionTypeButton(String type) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
-        return FilledButton.tonal(
-          onPressed: () {
-            setState(() {
-              _selectedTransactionType = type;
-              if (type == 'Expense') {
-                Provider.of<ThemeProvider>(context, listen: false).setTempTheme(
-                    ThemeProvider.themes[0]);
-              } else if (type == 'Income') {
-                Provider.of<ThemeProvider>(context, listen: false).setTempTheme(
-                    ThemeProvider.themes[1]);
-              } else {
-                Provider.of<ThemeProvider>(context, listen: false).setTempTheme(
-                    ThemeProvider.themes[2]);
-              }
-            });
-          },
-          style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all<Color>(
-              _selectedTransactionType == type
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : Theme.of(context).colorScheme.secondaryContainer,
-            ),
-            minimumSize: WidgetStateProperty.all(Size(
-                (MediaQuery.of(context).size.width / 3) - 14, 45)),
-            padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
-                const EdgeInsets.symmetric(horizontal: 5)),
-            shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
+  Widget _buildAccountCard(Account account) {
+    return Card(
+      elevation: 3,
+      child: Stack(
+        children: [
+          Container(
+            height: 90,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  account.color.withOpacity(0.7),
+                  account.color,
+                  account.color.withOpacity(1.0),
+                ],
               ),
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.blue,
             ),
           ),
-          child: Text(
-            type,
-            style: const TextStyle(fontSize: 16),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildAccountButton(String label) {
-    return TextButton(
-      onPressed: () async {
-        final selectedAccount = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AccountsPage(
-              onAccountSelected: (account) {
-                setState(() {
-                  if (label == 'From Account') {
-                    fromAccount = account;
-                    _selectedAccount = fromAccount;
-                    print("From Account: $fromAccount");
-                  } else if (label == 'To Account') {
-                    toAccount = account;
-                    _selectedAccount = toAccount;
-                    print("From Account: $fromAccount");
-                    print("To Account: $toAccount");
-                  }
-                  else {
-                    selectedAmount = account;
-                    _selectedAccount = selectedAmount;
-                    print("Selected Amount: $selectedAmount");
-                  }
-                });
-              },
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      account.accountType.icon,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Text(
+                      account.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      account.currency,
+                      style: const TextStyle(
+                        color: Color.fromARGB(150, 255, 255, 255),
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ),
-        );
-      },
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-                fontSize: 10, color: Color.fromARGB(150, 255, 255, 255)),
-          ),
-          Text(
-            _selectedAccount,
-            style: const TextStyle(
-                fontSize: 13, color: Color.fromARGB(255, 255, 255, 255)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryButton(String label) {
-    return TextButton(
-      onPressed: (){
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategoriesPage(),
-          ),
-        );
-      },
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-                fontSize: 10, color: Color.fromARGB(128, 255, 255, 255)),
-          ),
-          Text(_selectedCategory != null ? _selectedCategory!.name : 'SELECT CATEGORY',
-              style: const TextStyle(
-                  fontSize: 13, color: Color.fromARGB(255, 255, 255, 255))),
-          if (_selectedSubCategory != null)
-            Text('SubCategory: ${_selectedSubCategory!.name}'),
-          // Rest of your UI components
+          )
         ],
       ),
     );
@@ -267,9 +259,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
   void onPressed() {}
 }
-
-
-// Custom Google-like Calculator Widget
 class CalculatorWidget extends StatefulWidget {
   const CalculatorWidget({super.key});
 
@@ -280,7 +269,6 @@ class CalculatorWidget extends StatefulWidget {
 class _CalculatorWidgetState extends State<CalculatorWidget> {
   String _display = '0';
   double _calculatedValue = 0.0;
-  double buttonSize = 60.0; // Define button size variable
 
   void _buttonPressed(String buttonText) {
     setState(() {
@@ -359,7 +347,6 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
     return Column(
       children: [
         Container(
-          height: MediaQuery.of(context).size.width * 0.56,
           padding: const EdgeInsets.all(16),
           alignment: Alignment.bottomRight,
           decoration: BoxDecoration(
@@ -379,40 +366,24 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
         ),
         Expanded(
           child: Container(
-            height: MediaQuery.of(context).size.width * 0.1,
-            child: GridView.count(
+            child: GridView.builder(
               physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              crossAxisCount: 4,
+              shrinkWrap: false,
               padding: const EdgeInsets.only(top: 14, left: 29, right: 29),
-              mainAxisSpacing: 14,
-              crossAxisSpacing: 14,
-              children: [
-                _buildCalcButton('C', Theme.of(context).colorScheme.primary.withAlpha(230), Colors.white),
-                _buildCalcButton('( )', Theme.of(context).colorScheme.primary.withAlpha(230), Colors.white),
-                _buildCalcButton('%', Theme.of(context).colorScheme.tertiary.withAlpha(220), Colors.white),
-                _buildCalcButton('÷', Theme.of(context).colorScheme.tertiary.withAlpha(220), Colors.white),
-
-                _buildCalcButton('7', Theme.of(context).colorScheme.secondaryContainer, defaultTextColor),
-                _buildCalcButton('8', Theme.of(context).colorScheme.secondaryContainer, defaultTextColor),
-                _buildCalcButton('9', Theme.of(context).colorScheme.secondaryContainer, defaultTextColor),
-                _buildCalcButton('×', Theme.of(context).colorScheme.tertiary.withAlpha(220), Colors.white),
-
-                _buildCalcButton('4', Theme.of(context).colorScheme.secondaryContainer, defaultTextColor),
-                _buildCalcButton('5', Theme.of(context).colorScheme.secondaryContainer, defaultTextColor),
-                _buildCalcButton('6', Theme.of(context).colorScheme.secondaryContainer, defaultTextColor),
-                _buildCalcButton('-', Theme.of(context).colorScheme.tertiary.withAlpha(220), Colors.white),
-
-                _buildCalcButton('1', Theme.of(context).colorScheme.secondaryContainer, defaultTextColor),
-                _buildCalcButton('2', Theme.of(context).colorScheme.secondaryContainer, defaultTextColor),
-                _buildCalcButton('3', Theme.of(context).colorScheme.secondaryContainer, defaultTextColor),
-                _buildCalcButton('+', Theme.of(context).colorScheme.tertiary.withAlpha(220), Colors.white),
-
-                _buildCalcButton('0', Theme.of(context).colorScheme.secondaryContainer, defaultTextColor),
-                _buildCalcButton('.', Theme.of(context).colorScheme.secondaryContainer, defaultTextColor),
-                _buildCalcButton('⌫', Theme.of(context).colorScheme.secondaryContainer, defaultTextColor),
-                _buildCalcButton('=', Theme.of(context).colorScheme.primary.withAlpha(230), Colors.white),
-              ],
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4, // Number of columns
+                mainAxisSpacing: 14, // Spacing between rows
+                crossAxisSpacing: 14, // Spacing between columns
+                childAspectRatio: 1.5, // Aspect ratio of each item
+              ),
+              itemCount: 20, // Number of items
+              itemBuilder: (context, index) {
+                // Define your button texts and colors here
+                final buttonText = _getButtonText(index);
+                final bgColor = _getButtonColor(index, context);
+                final textColor = _getButtonTextColor(index, context);
+                return _buildCalcButton(buttonText, bgColor, textColor);
+              },
             ),
           ),
         ),
@@ -420,20 +391,50 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
     );
   }
 
+  String _getButtonText(int index) {
+    // Define your button texts based on the index
+    const buttonTexts = [
+      'C', '( )', '%', '÷',
+      '7', '8', '9', '×',
+      '4', '5', '6', '-',
+      '1', '2', '3', '+',
+      '0', '.', '⌫', '='
+    ];
+    return buttonTexts[index];
+  }
+
+  Color _getButtonColor(int index, BuildContext context) {
+    // Define your button background colors based on the index
+    if (index < 4 || index == 19) {
+      return Theme.of(context).colorScheme.primary.withAlpha(230);
+    } else if (index == 2 || index == 3 || index == 7 || index == 11 || index == 15) {
+      return Theme.of(context).colorScheme.tertiary.withAlpha(220);
+    } else {
+      return Theme.of(context).colorScheme.secondaryContainer;
+    }
+  }
+
+  Color _getButtonTextColor(int index, BuildContext context) {
+    // Define your button text colors based on the index
+    if (index < 4 || index == 19 || index == 2 || index == 3 || index == 7 || index == 11 || index == 15) {
+      return Colors.white;
+    } else {
+      return Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    }
+  }
+
   Widget _buildCalcButton(String buttonText, Color bgColor, Color textColor) {
     return GestureDetector(
       onTap: () => _buttonPressed(buttonText),
       child: Container(
-        width: buttonSize, // Use button size variable
-        height: buttonSize, // Use button size variable
         decoration: BoxDecoration(
           color: bgColor,
-          shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(8.0), // Rectangular shape with slight rounding
         ),
         child: Center(
           child: Text(
             buttonText,
-            style: TextStyle(fontSize: 29, color: textColor, fontWeight: FontWeight.w500),
+            style: TextStyle(fontSize: 23, color: textColor, fontWeight: FontWeight.w500),
           ),
         ),
       ),
