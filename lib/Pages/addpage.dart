@@ -1,3 +1,4 @@
+// lib/Pages/addpage.dart
 import 'package:finance_apk/Pages/accountspage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,9 +7,14 @@ import 'package:expressions/expressions.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 import '../main.dart';
+import '../backend/Categories.dart';
+import 'categoriespage.dart';
 
 class AddTransactionPage extends StatefulWidget {
-  const AddTransactionPage({super.key});
+  final Category? category;
+  final SubCategory? subCategory;
+
+  const AddTransactionPage({super.key, this.category, this.subCategory});
 
   @override
   _AddTransactionPageState createState() => _AddTransactionPageState();
@@ -20,6 +26,15 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   late String fromAccount;
   late String toAccount;
   late String selectedAmount;
+  Category? _selectedCategory;
+  SubCategory? _selectedSubCategory;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = widget.category;
+    _selectedSubCategory = widget.subCategory;
+  }
 
   Color darkenColor(Color color, double amount) {
     return Color.fromARGB(
@@ -75,7 +90,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     IconButton(
                       onPressed: () {
                         Provider.of<ThemeProvider>(context, listen: false).setTheme(
-                          ThemeProvider.currentTheme.primaryColor,
+                          ThemeProvider.currentTheme.color,
                         );
                         Navigator.push(
                           context,
@@ -224,7 +239,14 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
   Widget _buildCategoryButton(String label) {
     return TextButton(
-      onPressed: onPressed,
+      onPressed: (){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategoriesPage(),
+          ),
+        );
+      },
       child: Column(
         children: [
           Text(
@@ -232,11 +254,12 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             style: const TextStyle(
                 fontSize: 10, color: Color.fromARGB(128, 255, 255, 255)),
           ),
-          const Text(
-            'SELECT CATEGORY',
-            style: TextStyle(
-                fontSize: 13, color: Color.fromARGB(255, 255, 255, 255)),
-          ),
+          Text(_selectedCategory != null ? _selectedCategory!.name : 'SELECT CATEGORY',
+              style: const TextStyle(
+                  fontSize: 13, color: Color.fromARGB(255, 255, 255, 255))),
+          if (_selectedSubCategory != null)
+            Text('SubCategory: ${_selectedSubCategory!.name}'),
+          // Rest of your UI components
         ],
       ),
     );

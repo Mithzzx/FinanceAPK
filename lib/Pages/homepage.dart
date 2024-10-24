@@ -1,9 +1,12 @@
 import 'package:finance_apk/Pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import '../Components/recent_records_card.dart';
 import '../backend/accounts.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   State<HomePage> createState() => HomePageState();
 }
@@ -20,7 +23,7 @@ class HomePageState extends State<HomePage> {
     double slidingAccountsPadding = homePagePadding + 10;
     double slidingAccountsSpacing = 10;
 
-    Widget SlidingAccountsCard(Account account) {
+    Widget slidingAccountsCard(Account account) {
       return Card(
         elevation: 3,
         child: Stack(
@@ -93,7 +96,7 @@ class HomePageState extends State<HomePage> {
       );
     }
 
-    Widget SlidingAccountsCon(cards) {
+    Widget slidingAccountsCon(cards) {
       return Container(
         padding: EdgeInsets.symmetric(horizontal: slidingAccountsPadding),
         width: MediaQuery.of(context).size.width,
@@ -119,9 +122,9 @@ class HomePageState extends State<HomePage> {
       );
     }
 
-    BuildSlidingAccountsCon(accounts) {
+    buildSlidingAccountsCon(accounts) {
       List<Widget> containers = [];
-      var blankcard = Card(
+      var blankCard = Card(
         elevation: 3,
         child: SizedBox(
           height: 90,
@@ -133,18 +136,18 @@ class HomePageState extends State<HomePage> {
         List<Widget> cards = [];
         for (var i = 0; i < 4; i++) {
           if (j < accounts.length) {
-            cards.add(SlidingAccountsCard(accounts[j]));
+            cards.add(slidingAccountsCard(accounts[j]));
             j++;
           } else {
-            cards.add(blankcard);
+            cards.add(blankCard);
           }
         }
-        containers.add(SlidingAccountsCon(cards));
+        containers.add(slidingAccountsCon(cards));
       }
       return containers;
     }
 
-    List<Widget> SACointainers = BuildSlidingAccountsCon(accounts);
+    List<Widget> slidingContainers = buildSlidingAccountsCon(accounts);
 
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
@@ -185,7 +188,7 @@ class HomePageState extends State<HomePage> {
               Row(
                 children: [
                   SizedBox(width: homePagePadding + 15),
-                  Container(
+                  SizedBox(
                     width: 280,
                     height: 150,
                     child: Column(
@@ -222,11 +225,11 @@ class HomePageState extends State<HomePage> {
                             FilledButton.tonal(
                               onPressed: onPressed,
                               style: ButtonStyle(
-                                minimumSize: MaterialStateProperty.all(const Size(85, 35)),
-                                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                minimumSize: WidgetStateProperty.all(const Size(85, 35)),
+                                padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
                                   const EdgeInsets.symmetric(horizontal: 5),
                                 ),
-                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                                   RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -291,7 +294,7 @@ class HomePageState extends State<HomePage> {
                           elevation: 3,
                           child: Padding(
                             padding: const EdgeInsets.only(right: 50),
-                            child: Container(
+                            child: SizedBox(
                               width: 165, // Set the width of the card
                               height: 110, // Set the height of the card
                               child: ClipRRect(
@@ -306,7 +309,7 @@ class HomePageState extends State<HomePage> {
                         ),
                         Card(
                           elevation: 3,
-                          child: Container(
+                          child: SizedBox(
                             width: 195, // Set the width of the card
                             height: 130, // Set the height of the card
                             child: ClipRRect(
@@ -330,13 +333,13 @@ class HomePageState extends State<HomePage> {
             height: 208, // Adjust height as needed
             child: PageView(
               controller: _pageController,
-              children: SACointainers,
+              children: slidingContainers,
             ),
           ), // Sliding Accounts
           const SizedBox(height: 10),
           SmoothPageIndicator(
             controller: _pageController,
-            count: SACointainers.length,
+            count: slidingContainers.length,
             effect: ExpandingDotsEffect(
               dotHeight: 8,
               dotWidth: 8,
@@ -346,68 +349,40 @@ class HomePageState extends State<HomePage> {
             ),
           ), // Dot Indicator
           const SizedBox(height: 10),
-      Card(
-        elevation: 3,
-        child: SizedBox(
-          height: 220,
-          width: MediaQuery.of(context).size.width - (homePagePadding + 35),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 22, right: 22),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "TITLE",
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: onPressed,
-                      child: const Text(
-                        "SHOW MORE",
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                RecentRecordsCard(),
+                const SizedBox(height: 10),
+                Card(
+                  elevation: 3,
+                  child: SizedBox(
+                    height: 220,
+                    width: MediaQuery.of(context).size.width - (homePagePadding + 35),
+                    child: const Center(child: Text("DEMO CARD 2")),
+                  ),
                 ),
-              ),
-              const Center(child: Text("DEMO CONTENT")),
-            ],
-          ),
-        ),
-      ),
-          const SizedBox(height: 10),
-          Card(
-            elevation: 3,
-            child: SizedBox(
-              height: 220,
-              width: MediaQuery.of(context).size.width - (homePagePadding + 35),
-              child: const Center(child: Text("DEMO CARD 2")),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Card(
-            elevation: 3,
-            child: SizedBox(
-              height: 220,
-              width: MediaQuery.of(context).size.width - (homePagePadding + 35),
-              child: const Center(child: Text("DEMO CARD 3")),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Card(
-            elevation: 3,
-            child: SizedBox(
-              height: 220,
-              width: MediaQuery.of(context).size.width - (homePagePadding + 35),
-              child: const Center(child: Text("DEMO CARD 4")),
+                const SizedBox(height: 10),
+                Card(
+                  elevation: 3,
+                  child: SizedBox(
+                    height: 220,
+                    width: MediaQuery.of(context).size.width - (homePagePadding + 35),
+                    child: const Center(child: Text("DEMO CARD 3")),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Card(
+                  elevation: 3,
+                  child: SizedBox(
+                    height: 220,
+                    width: MediaQuery.of(context).size.width - (homePagePadding + 35),
+                    child: const Center(child: Text("DEMO CARD 4")),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -416,7 +391,6 @@ class HomePageState extends State<HomePage> {
   }
 
   void onSettingsPressed() {
-    print("Settings Pressed");
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => SettingsPage()),

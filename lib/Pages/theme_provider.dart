@@ -1,4 +1,11 @@
+// lib/Pages/theme_provider.dart
 import 'package:flutter/material.dart';
+
+class MyTheme {
+  ThemeData themeData;
+  Color color;
+  MyTheme({required this.themeData, required this.color});
+}
 
 class ThemeProvider extends ChangeNotifier {
   ThemeData _themeData;
@@ -33,10 +40,16 @@ class ThemeProvider extends ChangeNotifier {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: _lighterColor, // Use lighter color
+          foregroundColor: brightness == Brightness.dark ? _lighterColor : null, // Use lighter color
         ),
       ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: brightness == Brightness.dark ? Colors.black : colorSchemeSeed, // Fixed color
+      ),
     );
+    currentTheme.themeData = _themeData;
+    currentTheme.color = colorSchemeSeed;
+    print("currentTheme: " + currentTheme.color.toString());
     notifyListeners(); // Notifies widgets about theme change
   }
 
@@ -49,6 +62,11 @@ class ThemeProvider extends ChangeNotifier {
       cardTheme: CardTheme(
         color: brightness == Brightness.dark ? const Color.fromARGB(255, 25, 25, 25) : null,
       ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: _lighterColor, // Use lighter color
+        ),
+      ),
     );
     notifyListeners(); // Notifies widgets about theme change
   }
@@ -56,23 +74,29 @@ class ThemeProvider extends ChangeNotifier {
   void toggleBrightness() {
     brightness = brightness == Brightness.dark ? Brightness.light : Brightness.dark;
     isDarkMode = !isDarkMode;
-    setTempTheme(currentTheme.primaryColor);
+    setTheme(currentTheme.color);
     // Notifies widgets about theme change
   }
 
-  static ThemeData currentTheme = ThemeData(
-    colorSchemeSeed: Colors.blue,
-    brightness: Brightness.dark,
-    canvasColor: Colors.black,
-    scaffoldBackgroundColor: Colors.black,
-    cardTheme: const CardTheme(
-      color: Color.fromARGB(255, 25, 25, 25),
-    ),
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(
-        foregroundColor: Color.lerp(Colors.blue, Colors.white, 0.2), // Use lighter color
+  static MyTheme currentTheme = MyTheme(
+    themeData: ThemeData(
+      colorSchemeSeed: Colors.blue,
+      brightness: Brightness.dark,
+      canvasColor: Colors.black,
+      scaffoldBackgroundColor: Colors.black,
+      cardTheme: const CardTheme(
+        color: Color.fromARGB(255, 25, 25, 25),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: Color.lerp(Colors.blue, Colors.white, 0.2), // Use lighter color
+        ),
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.black, // Fixed color
       ),
     ),
+    color: Colors.blue,
   );
 
   // List of themes

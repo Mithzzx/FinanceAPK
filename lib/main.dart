@@ -12,7 +12,7 @@ import 'Pages/theme_provider.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (context) => ThemeProvider(ThemeProvider.currentTheme), // Default theme
+      create: (context) => ThemeProvider(ThemeProvider.currentTheme.themeData), // Default theme
       child: MyApp(),
     ),
   );

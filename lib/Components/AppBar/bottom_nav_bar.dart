@@ -181,7 +181,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> with TickerProv
                 iconSize: 27,
                 selectedFontSize: 10,
                 unselectedFontSize: 8,
-                selectedItemColor: lighterColor,
+                selectedItemColor: Theme.of(context).brightness == Brightness.dark? lighterColor : null,
                 onTap: _onIconTapped,
               ),
             ),
