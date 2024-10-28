@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../Services/database_service.dart';
-
 class AccountType {
   String name;
   IconData icon;
 
   AccountType({
     required this.name,
-    required this.icon,
+    required this.icon
   });
 }
 
@@ -21,7 +19,7 @@ class AccountTypes {
   AccountType other = AccountType(name: "Other", icon: Icons.account_circle_rounded);
 }
 
-class Account {
+class Account{
   String name;
   String currency;
   double balance;
@@ -35,24 +33,16 @@ class Account {
     required this.balance,
     required this.accountNumber,
     required this.accountType,
-    required this.color,
-  });
+    required this.color});
 }
-
 AccountTypes accountTypes = AccountTypes();
-
-void _saveAccount() async {
-  if (_formKey.currentState!.validate()) {
-    _formKey.currentState!.save();
-    Map<String, dynamic> account = {
-      'name': _accountName,
-      'balance': _balance,
-      'icon': _selectedIcon.codePoint,
-      'color': _selectedColor.value,
-    };
-    await DatabaseHelper().insertAccount(account);
-    Navigator.pop(context);
-  }
-}
+List<Account> accounts = [
+  Account(name: "HDFC", currency: "USD", balance: 1500.75, accountNumber: 123456789,accountType: accountTypes.savings,color: Colors.blue),
+  Account(name: "Fi", currency: "USD", balance: 2500.00, accountNumber: 987654321,accountType: accountTypes.checking, color: Colors.red),
+  Account(name: "Axis", currency: "USD", balance: 5000.50, accountNumber: 112233445,accountType: accountTypes.business, color: Colors.green),
+  Account(name: "Mutual Funds", currency: "USD", balance: 10000.00, accountNumber: 556677889,accountType: accountTypes.investment, color: Colors.orange),
+  Account(name: "Crypto", currency: "USD", balance: 20000.00, accountNumber: 998877665,accountType: accountTypes.retirement, color: Colors.purple),
+  Account(name: " Account", currency: "USD", balance: 20000.00, accountNumber: 998877665,accountType: accountTypes.savings, color: Colors.blueGrey),
+];
 
 

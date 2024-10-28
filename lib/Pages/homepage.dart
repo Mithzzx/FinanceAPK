@@ -1,11 +1,8 @@
 import 'package:finance_apk/Pages/settings_page.dart';
-import 'package:finance_apk/Pages/theme_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../Components/recent_records_card.dart';
 import '../backend/accounts.dart';
-import 'addAccountPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -125,59 +122,6 @@ class HomePageState extends State<HomePage> {
       );
     }
 
-    Widget addACard(BuildContext context) {
-      Color lighterColor = Provider.of<ThemeProvider>(context).lighterColor;
-
-      return GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddAccountPage()),
-          );
-        },
-        child: Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(
-              color: lighterColor,
-              width: 2,
-            ),
-          ),
-          child: SizedBox(
-            height: 90,
-            width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 14,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.add,
-                    size: 24,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Add Account',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
     buildSlidingAccountsCon(accounts) {
       List<Widget> containers = [];
       var blankCard = Card(
@@ -187,7 +131,6 @@ class HomePageState extends State<HomePage> {
           width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 14,
         ),
       );
-      int ac = 0;
       int j = 0;
       for (var p = 0; p < accounts.length / 4; p++) {
         List<Widget> cards = [];
@@ -195,12 +138,8 @@ class HomePageState extends State<HomePage> {
           if (j < accounts.length) {
             cards.add(slidingAccountsCard(accounts[j]));
             j++;
-          } else { if (ac == 0) {
-            cards.add(addACard(context));
-            ac++;
           } else {
             cards.add(blankCard);
-          }
           }
         }
         containers.add(slidingAccountsCon(cards));
