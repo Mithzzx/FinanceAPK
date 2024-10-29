@@ -44,7 +44,7 @@ class ThemeProvider extends ChangeNotifier {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: brightness == Brightness.dark ? Colors.black : colorSchemeSeed, // Fixed color
+        backgroundColor: brightness == Brightness.dark ? Colors.black : null, // Fixed color
       ),
     );
     currentTheme.themeData = _themeData;
@@ -59,6 +59,8 @@ class ThemeProvider extends ChangeNotifier {
       colorSchemeSeed: colorSchemeSeed,
       brightness: brightness,
       canvasColor: brightness == Brightness.dark ? Colors.black : null,
+
+      scaffoldBackgroundColor: brightness == Brightness.dark ? Colors.black : null,
       cardTheme: CardTheme(
         color: brightness == Brightness.dark ? const Color.fromARGB(255, 25, 25, 25) : null,
       ),
