@@ -1,17 +1,18 @@
 import 'package:appinio_animated_toggle_tab/appinio_animated_toggle_tab.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:expressions/expressions.dart';
-import 'package:finance_apk/Pages/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-
 import '../Components/Date_time_card.dart';
 import '../Components/coustom_bottom_sheet.dart';
-import '../main.dart';
+import '../backend/database_helper.dart';
 import '../backend/Categories.dart';
 import '../backend/accounts.dart';
+import '../main.dart';
 import 'categoriespage.dart';
+import 'theme_provider.dart';
+import 'package:finance_apk/backend/Records.dart';
 
 class AddTransactionPage extends StatefulWidget {
   final Category? category;
@@ -25,7 +26,7 @@ class AddTransactionPage extends StatefulWidget {
 
 class _AddTransactionPageState extends State<AddTransactionPage> {
   String _selectedTransactionType = 'Income';
-  String _selectedAccount = 'SELECT ACCOUNT';
+  String _selectedAccount = accounts[0].name;
   late String fromAccount;
   late String toAccount;
   late String selectedAmount;
@@ -34,6 +35,81 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   final PageController _pageController = PageController(viewportFraction: 0.921);
   final TextEditingController _amountController = TextEditingController();
   String _display = '0';
+  DateTime? _selectedDateTime;
+
+  void onPressed() async {
+    try {
+      // Collect the data
+      double? amount = double.tryParse(_amountController.text);
+      Account account = accounts.firstWhere(
+            (acc) => acc.name == _selectedAccount,
+        orElse: () => accounts.firstWhere((acc) => acc.name == 'Sample Account'),
+      );
+      Category? category = _selectedCategory;
+      DateTime? dateTime = _selectedDateTime;
+
+      // Validate required fields
+      List<String> missingFields = [];
+      if (amount == null || amount == 0) missingFields.add('Amount');
+      if (category == null) missingFields.add('Category');
+      if (dateTime == null) missingFields.add('Date and Time');
+
+      if (missingFields.isNotEmpty) {
+        // Show dialog box listing the missing data
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Missing Data'),
+              content: Text('Please provide the following data:\n${missingFields.join('\n')}'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+
+      // Create a Record object
+      Record record = Record(
+        amount: amount!, // Use the non-nullable amount
+        account: account,
+        category: category!,
+        dateTime: dateTime!,
+        notes: "Some notes", // Replace with actual notes
+        payee: "Some payee", // Replace with actual payee
+        paymentType: "Some payment type", // Replace with actual payment type
+        warranty: "Some warranty", // Replace with actual warranty
+        status: "Some status", // Replace with actual status
+        location: "Some location", // Replace with actual location
+        photo: "Some photo", // Replace with actual photo
+      );
+
+      // Insert the Record object into the database
+      await DatabaseHelper().insertRecord(record);
+
+      // Add the record to the Records list
+      Records.add(record);
+
+      Provider.of<ThemeProvider>(context, listen: false).setTheme(ThemeProvider.currentTheme.color);
+
+      // Navigate to home page
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => MainPage()),
+            (Route<dynamic> route) => false,
+      );
+    } catch (e) {
+      // Handle the error (e.g., show a message to the user)
+      print('Error: $e');
+    }
+  }
 
   @override
   void initState() {
@@ -45,6 +121,12 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   void _updateDisplay(String display) {
     setState(() {
       _display = display;
+    });
+  }
+
+  void _evaluateAndSetAmount() {
+    setState(() {
+      _amountController.text = _display;
     });
   }
 
@@ -115,7 +197,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   ],
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.only(left: 22),
                   child: AppinioAnimatedToggleTab(
                     tabTexts: const ['Income', 'Expense', 'Transfer'],
                     callback: (index) {
@@ -135,7 +217,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     },
                     height: 42,
                     boxDecoration: BoxDecoration(
-                      color: adjustedColor,
+                      color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.6),
                       borderRadius: const BorderRadius.only(topRight: Radius.circular(15), topLeft: Radius.circular(15)),
                     ),
                     animatedBoxDecoration: BoxDecoration(
@@ -163,16 +245,16 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           onDisplayChanged: _updateDisplay,
                         ),
                       ),
-                    );
+                      _evaluateAndSetAmount,);
                   },
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 16, right: 23.5, top:1),
+                    padding: const EdgeInsets.only(left: 22, right: 18, top:1),
                     child: Container(
                       height: 85,
                       padding: const EdgeInsets.all(8),
                       alignment: Alignment.bottomRight,
                       decoration: BoxDecoration(
-                        color: adjustedColor,
+                        color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.6),
                         borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(15),
                           bottomRight: Radius.circular(15),
@@ -190,13 +272,13 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 ),
                 const SizedBox(height: 25),
                 const Padding(
-                  padding: EdgeInsets.only(left: 23),
+                  padding: EdgeInsets.only(left: 22),
                   child: Text(
                     'DETAILS',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 1),
                 Column(
                   children: [
                     SizedBox(
@@ -214,85 +296,99 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                         },
                       ),
                     ),
-                    const SizedBox(height: 5),
-                    SmoothPageIndicator(
-                      controller: _pageController,
-                      count: accounts.length,
-                      effect: WormEffect(
-                        spacing: 5,
-                        dotHeight: 5,
-                        dotWidth: 5,
-                        activeDotColor: Theme.of(context).colorScheme.primary,
-                        dotColor: Theme.of(context).colorScheme.secondaryContainer,
+                    const SizedBox(height: 3),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: SmoothPageIndicator(
+                        controller: _pageController,
+                        count: accounts.length,
+                        effect: WormEffect(
+                          spacing: 5,
+                          dotHeight: 5,
+                          dotWidth: 5,
+                          activeDotColor: Theme.of(context).colorScheme.primary,
+                          dotColor: Theme.of(context).colorScheme.secondaryContainer,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 7),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 18),
                       child: Row(
                         children: [
                           Expanded(
                             flex: 2,
-                            child: GestureDetector(
-                              onTap: () async {
-                                final selectedCategory = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => CategoriesPage()),
-                                );
-                                if (selectedCategory != null) {
-                                  setState(() {
-                                    _selectedCategory = selectedCategory;
-                                  });
-                                }
-                              },
-                              child: Card(
-                                color: _selectedCategory?.color ?? null,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                child: SizedBox(
-                                  height: 90, // Set the same fixed height
-                                  width: MediaQuery.of(context).size.width * 0.9,
-                                  child: Center(
-                                    child: _selectedCategory == null
-                                        ? Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          alignment: Alignment.center,
-                                          width: 40,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.08),
-                                            shape: BoxShape.rectangle,
-                                            borderRadius: BorderRadius.circular(15),
+                            child: Container(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  final selectedCategory = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => CategoriesPage()),
+                                  );
+                                  if (selectedCategory != null) {
+                                    setState(() {
+                                      _selectedCategory = selectedCategory;
+                                    });
+                                  }
+                                },
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: Container(
+                                    height: 90,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          _selectedCategory?.color.withOpacity(0.5) ?? adjustedColor,
+                                          _selectedCategory?.color ?? adjustedColor,
+                                        ],
+                                        begin: Alignment.bottomRight,
+                                        end: Alignment.topLeft,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Center(
+                                      child: _selectedCategory == null
+                                          ? Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            alignment: Alignment.center,
+                                            width: 45,
+                                            height: 45,
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.08),
+                                              shape: BoxShape.rectangle,
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: const Text("?"),
                                           ),
-                                          child: const Text("?"),
-                                        ),
-                                        const SizedBox(height: 5),
-                                        const Text('Category', style: TextStyle(fontSize: 14)),
-                                      ],
-                                    )
-                                        : Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          alignment: Alignment.center,
-                                          width: 40,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.1),
-                                            shape: BoxShape.rectangle,
-                                            borderRadius: BorderRadius.circular(15),
+                                          const SizedBox(height: 5),
+                                          const Text('Category', style: TextStyle(fontSize: 14)),
+                                        ],
+                                      )
+                                          : Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            alignment: Alignment.center,
+                                            width: 45,
+                                            height: 45,
+                                            decoration: BoxDecoration(
+                                              color: Colors.black.withOpacity(0.1),
+                                              shape: BoxShape.rectangle,
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: _selectedCategory?.icon,
                                           ),
-                                          child: _selectedCategory?.icon,
-                                        ),
-                                        const SizedBox(height: 5),
-                                        Text(
-                                          _selectedSubCategory?.name ?? _selectedCategory!.name,
-                                          style: const TextStyle(color: Colors.white, fontSize: 18),
-                                        ),
-                                      ],
+                                          const SizedBox(height: 5),
+                                          Text(
+                                            _selectedSubCategory?.name ?? _selectedCategory!.name,
+                                            style: const TextStyle(color: Colors.white, fontSize: 18),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -303,7 +399,13 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                             flex: 1,
                             child: SizedBox(
                               height: 100, // Set the same fixed height
-                              child: DateTimeCard(),
+                              child: DateTimeCard(
+                                onDateTimeChanged: (dateTime) {
+                                  setState(() {
+                                    _selectedDateTime = dateTime;
+                                  });
+                                },
+                              ),
                             ),
                           ),
                         ],
@@ -311,74 +413,81 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     ),
                   ],
                 ),
-                ListView(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: const [
-                    Padding(
-                      padding: EdgeInsets.only(left: 16.0, bottom: 8.0),
-                      child: Text(
-                        'MORE DETAILS',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                const Padding(
+                  padding: EdgeInsets.only(left: 22, top: 16,bottom: 5),
+                  child: Text(
+                    'MORE DETAILS',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                ),
+                Card(
+                  elevation: 3,
+                  margin: const EdgeInsets.symmetric(horizontal: 22),
+                  child: ListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: const [
+                      ListTile(
+                        leading: Icon(Icons.note),
+                        title: Text('Note'),
+                        trailing: Icon(Icons.arrow_forward_ios,size: 15),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Divider(thickness: 0.3),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.note),
-                      title: Text('Note'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Divider(thickness: 0.3),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.person),
-                      title: Text('Payee'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Divider(thickness: 0.3),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.payment),
-                      title: Text('Payment type'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Divider(thickness: 0.3),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.verified_user),
-                      title: Text('Warranty'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Divider(thickness: 0.3),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.info),
-                      title: Text('Status'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Divider(thickness: 0.3),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.location_on),
-                      title: Text('Add location'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Divider(thickness: 0.3),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.photo_camera),
-                      title: Text('Attach photo'),
-                    ),
-                  ],
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Divider(thickness: 0.3),
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.person),
+                        title: Text('Payee'),
+                        trailing: Icon(Icons.arrow_forward_ios,size: 15,),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Divider(thickness: 0.3),
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.payment),
+                        title: Text('Payment type'),
+                        trailing: Icon(Icons.arrow_forward_ios,size: 15),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Divider(thickness: 0.3),
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.verified_user),
+                        title: Text('Warranty'),
+                        trailing: Icon(Icons.arrow_forward_ios,size: 15),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Divider(thickness: 0.3),
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.info),
+                        title: Text('Status'),
+                        trailing: Icon(Icons.arrow_forward_ios,size: 15),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Divider(thickness: 0.3),
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.location_on),
+                        title: Text('Add location'),
+                        trailing: Icon(Icons.arrow_forward_ios,size: 15),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Divider(thickness: 0.3),
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.photo_camera),
+                        title: Text('Attach photo'),
+                        trailing: Icon(Icons.arrow_forward_ios,size: 15),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 80)
               ],
@@ -409,17 +518,17 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     onPressed: onPressed,
                     child: const Text('Save'),
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.primary),
-                      textStyle: MaterialStateProperty.all(const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                      shape: MaterialStateProperty.all(const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      )
-                    )
+                        backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.primary),
+                        textStyle: MaterialStateProperty.all(const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                        shape: MaterialStateProperty.all(const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        )
+                        )
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
           ),
         ],
       ),
@@ -448,7 +557,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   ],
                 ),
                 borderRadius: BorderRadius.circular(15),
-                color: Colors.blue,
               ),
             ),
             Padding(
@@ -494,8 +602,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       ),
     );
   }
-
-  void onPressed() {}
 }
 
 class CalculatorWidget extends StatefulWidget {
@@ -521,7 +627,6 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
         _display = _calculatedValue.toString();
         widget.controller.text = _calculatedValue.toString();
         widget.onDisplayChanged(_display);
-        Navigator.pop(context);
       } else if (buttonText == '⌫') {
         _display = _display.length > 1 ? _display.substring(0, _display.length - 1) : '0';
       } else if (buttonText == '( )') {
@@ -554,7 +659,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
 
   double _evaluate(String expression) {
     try {
-      final evaluator = const ExpressionEvaluator();
+      const evaluator = ExpressionEvaluator();
       final parsedExpression = Expression.parse(expression.replaceAll('×', '*').replaceAll('÷', '/'));
       final result = evaluator.eval(parsedExpression, {});
       return result is double ? result : double.parse(result.toString());
@@ -563,39 +668,14 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
     }
   }
 
-  Color darkenColor(Color color, double amount) {
-    return Color.fromARGB(
-      color.alpha,
-      (color.red * (1 - amount)).toInt(),
-      (color.green * (1 - amount)).toInt(),
-      (color.blue * (1 - amount)).toInt(),
-    );
-  }
-
-  Color lightenColor(Color color, double amount) {
-    return Color.fromARGB(
-      color.alpha,
-      (color.red + ((255 - color.red) * amount)).toInt(),
-      (color.green + ((255 - color.green) * amount)).toInt(),
-      (color.blue + ((255 - color.blue) * amount)).toInt(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    Color scaffoldColor = Theme.of(context).scaffoldBackgroundColor;
-    Brightness brightness = Theme.of(context).brightness;
-    Color adjustedColor = (brightness == Brightness.light)
-        ? darkenColor(scaffoldColor, 0.07)
-        : lightenColor(scaffoldColor, 0.08);
-
-    Color defaultTextColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
     return Column(
       children: [
         Container(
           width: 32,
           height: 4,
-          margin: const EdgeInsets.only(top: 12,bottom: 8),
+          margin: const EdgeInsets.only(top: 12, bottom: 8),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.secondary.withOpacity(0.6),
             borderRadius: BorderRadius.circular(10),

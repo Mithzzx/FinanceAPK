@@ -1,5 +1,6 @@
-import 'dart:math';
+
 import 'package:finance_apk/backend/accounts.dart';
+import 'package:flutter/material.dart';
 import 'Categories.dart';
 
 class Label {
@@ -9,67 +10,75 @@ class Label {
 }
 
 class Record {
-  final double amount;
-  final Account account;
-  final Category category;
-  final DateTime dateTime;
-  final Label label;
-  final String notes;
-  final String payee;
-  final String paymentType;
-  final String warranty;
-  final String status;
-  final String location;
-  final String? photo;
+  int? id;
+  double amount;
+  Account account;
+  Category category;
+  DateTime dateTime;
+  String? label;
+  String? notes;
+  String? payee;
+  String? paymentType;
+  String? warranty;
+  String? status;
+  String? location;
+  String? photo;
 
   Record({
+    this.id,
     required this.amount,
     required this.account,
     required this.category,
     required this.dateTime,
-    required this.label,
-    required this.notes,
-    required this.payee,
-    required this.paymentType,
-    required this.warranty,
-    required this.status,
-    required this.location,
+    this.label,
+    this.notes,
+    this.payee,
+    this.paymentType,
+    this.warranty,
+    this.status,
+    this.location,
     this.photo,
   });
-}
 
-List<Record> generateRandomRecords(int count) {
-  final random = Random();
-  final paymentTypes = ['Credit Card', 'Debit Card', 'Cash'];
-  final statuses = ['Active', 'Pending', 'Completed'];
-  final locations = ['Walmart', 'Shell', 'AMC', 'CVS', 'Macy\'s', 'Marriott', 'McDonald\'s'];
-  final notes = [
-    'Bought some groceries',
-    'Filled up the gas tank',
-    'Watched a movie',
-    'Bought some medicine',
-    'Bought some clothes',
-    'Stayed at a hotel',
-    'Ate at a restaurant'
-  ];
-  final payees = ['Walmart', 'Shell', 'AMC', 'CVS', 'Macy\'s', 'Marriott', 'McDonald\'s'];
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'amount': amount,
+      'categoryId': category.id,
+      'dateTime': dateTime.toIso8601String(),
+      'label': label?.isNotEmpty == true ? label : null,
+      'notes': notes,
+      'payee': payee,
+      'paymentType': paymentType,
+      'warranty': warranty,
+      'status': status,
+      'location': location,
+      'photo': photo,
+    };
+  }
 
-  return List.generate(count, (index) {
+  factory Record.fromMap(Map<String, dynamic> map) {
     return Record(
-      amount: random.nextDouble() * 1000,
-      account: accounts[random.nextInt(accounts.length)],
-      category: categories[random.nextInt(categories.length)],
-      dateTime: DateTime.now().subtract(Duration(days: random.nextInt(30))),
-      label: Label(name: 'Label ${index + 1}'),
-      notes: notes[random.nextInt(notes.length)],
-      payee: payees[random.nextInt(payees.length)],
-      paymentType: paymentTypes[random.nextInt(paymentTypes.length)],
-      warranty: '${random.nextInt(5) + 1} year',
-      status: statuses[random.nextInt(statuses.length)],
-      location: locations[random.nextInt(locations.length)],
-      photo: 'photo${index + 1}.jpg',
+      id: map['id'],
+      amount: map['amount'],
+      account: accounts.firstWhere(
+            (account) => account.name == map['accountName'],
+        orElse: () => throw Exception('Account not found: ${map['accountName']}'),
+      ),
+      category: categories.firstWhere(
+            (category) => category.id == map['categoryId'],
+        orElse: () => Category(id: 0, name: 'Unknown', icon: const Icon(Icons.error), color: Colors.grey),
+      ),
+      dateTime: DateTime.parse(map['dateTime']),
+      label: map['label'] != null ? map['label'] : null,
+      notes: map['notes'],
+      payee: map['payee'],
+      paymentType: map['paymentType'],
+      warranty: map['warranty'],
+      status: map['status'],
+      location: map['location'],
+      photo: map['photo'],
     );
-  });
+  }
 }
-
-List<Record> Records = generateRandomRecords(10);
+List<Record> Records = [];

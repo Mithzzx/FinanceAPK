@@ -2,7 +2,9 @@ import 'package:finance_apk/Pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../Components/recent_records_card.dart';
+import '../backend/database_helper.dart';
 import '../backend/accounts.dart';
+import 'addAccountPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,16 +14,28 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  final PageController _pageController = PageController();
+  final PageController _pageController = PageController(viewportFraction: 0.9);
 
   void onPressed() {}
+
+  @override
+  void initState() {
+    super.initState();
+    _updateAccountsList();
+    DatabaseHelper().updateRecordsList();
+  }
+
+  void _updateAccountsList() async {
+    await DatabaseHelper().updateAccountsList();
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     double topIconSize = 27;
     double homePagePadding = 8;
     double slidingAccountsPadding = homePagePadding + 10;
-    double slidingAccountsSpacing = 10;
+    double slidingAccountsSpacing = 7;
 
     Widget slidingAccountsCard(Account account) {
       return Card(
@@ -30,7 +44,7 @@ class HomePageState extends State<HomePage> {
           children: [
             Container(
               height: 90,
-              width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 14,
+              width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 18,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topRight,
@@ -97,28 +111,24 @@ class HomePageState extends State<HomePage> {
     }
 
     Widget slidingAccountsCon(cards) {
-      return Container(
-        padding: EdgeInsets.symmetric(horizontal: slidingAccountsPadding),
-        width: MediaQuery.of(context).size.width,
-        child: Row(
-          children: [
-            Column(
-              children: [
-                cards[0],
-                SizedBox(height: slidingAccountsSpacing),
-                cards[2],
-              ],
-            ),
-            SizedBox(width: slidingAccountsSpacing),
-            Column(
-              children: [
-                cards[1],
-                SizedBox(height: slidingAccountsSpacing),
-                cards[3],
-              ],
-            ),
-          ],
-        ),
+      return Row(
+        children: [
+          Column(
+            children: [
+              cards[0],
+              SizedBox(height: slidingAccountsSpacing),
+              cards[2],
+            ],
+          ),
+          SizedBox(width: slidingAccountsSpacing),
+          Column(
+            children: [
+              cards[1],
+              SizedBox(height: slidingAccountsSpacing),
+              cards[3],
+            ],
+          ),
+        ],
       );
     }
 
@@ -128,19 +138,81 @@ class HomePageState extends State<HomePage> {
         elevation: 3,
         child: SizedBox(
           height: 90,
-          width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 14,
+          width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 18,
+        ),
+      );
+      Widget addAccountCard = Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.5), // Border color
+            width: 2,
+          ),
+        ),
+        child: InkWell(
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddAccountPage()),
+              );
+              setState(() {
+                // Refresh the state
+                DatabaseHelper().updateAccountsList();
+              });
+            },
+          child: SizedBox(
+            height: 90,
+            width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 18,
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.2), // Translucent background
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Add Account",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       );
       int j = 0;
-      for (var p = 0; p < accounts.length / 4; p++) {
+      bool ac = true;
+
+      for (var p = 0; p <= accounts.length / 4; p++) {
         List<Widget> cards = [];
         for (var i = 0; i < 4; i++) {
           if (j < accounts.length) {
             cards.add(slidingAccountsCard(accounts[j]));
             j++;
-          } else {
+          } else {if (ac){
+            ac = false;
+            cards.add(addAccountCard);
+          }else{
             cards.add(blankCard);
-          }
+          }}
         }
         containers.add(slidingAccountsCon(cards));
       }
@@ -344,7 +416,7 @@ class HomePageState extends State<HomePage> {
               dotHeight: 8,
               dotWidth: 8,
               activeDotColor: Theme.of(context).brightness == Brightness.dark
-                  ? Theme.of(context).secondaryHeaderColor : Theme.of(context).primaryColor,
+                  ? Theme.of(context).colorScheme.inversePrimary : Theme.of(context).primaryColor,
               dotColor: Colors.grey,
             ),
           ), // Dot Indicator
