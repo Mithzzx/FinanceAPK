@@ -3,14 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class Category {
-  final int id;
   final String name;
   final Icon icon;
   final Color color;
   List<SubCategory>? subCategories;
 
   Category({
-    required this.id,
     required this.name,
     required this.icon,
     required this.color,
@@ -26,14 +24,14 @@ class SubCategory {
 }
 
 List<Category> categories = [
-  Category(id:0,name: "Food & Drinks", icon: const Icon(Icons.fastfood), color: const Color(0xfff43c06), subCategories: [
+  Category(name: "Food & Drinks", icon: const Icon(Icons.fastfood), color: const Color(0xfff43c06), subCategories: [
     SubCategory(name: "Restaurants", icon: const Icon(Icons.restaurant)),
     SubCategory(name: "Fast Food", icon: const Icon(Icons.fastfood)),
     SubCategory(name: "Groceries", icon: const Icon(Icons.shopping_cart)),
     SubCategory(name: "Cafes", icon: const Icon(Icons.local_cafe)),
     SubCategory(name: "Bars", icon: const Icon(Icons.local_bar)),
   ]),
-  Category(id:1,name: "Shopping", icon: const Icon(Icons.shopping_cart), color: const Color(0xff4fbbed), subCategories: [
+  Category(name: "Shopping", icon: const Icon(Icons.shopping_cart), color: const Color(0xff4fbbed), subCategories: [
     SubCategory(name: "Clothing , shoes", icon: const Icon(Icons.shopping_bag)),
     SubCategory(name: "Electronics", icon: const Icon(Icons.phone_android)),
     SubCategory(name: "Books", icon: const Icon(Icons.menu_book)),
@@ -47,7 +45,7 @@ List<Category> categories = [
     SubCategory(name: "Free time", icon: const Icon(Icons.sports_esports)),
     SubCategory(name: "Drugstore, chemist", icon: const Icon(Icons.local_pharmacy)),
   ]),
-  Category(id:2,name: "Housing", icon: const Icon(Icons.home), color: const Color(0xfff49c29), subCategories: [
+  Category(name: "Housing", icon: const Icon(Icons.home), color: const Color(0xfff49c29), subCategories: [
     SubCategory(name: "Rent", icon: const Icon(Icons.home)),
     SubCategory(name: "Mortgage", icon: const Icon(Icons.account_balance)),
     SubCategory(name: "Energy, utilities", icon: const Icon(Icons.flash_on)),
@@ -55,13 +53,13 @@ List<Category> categories = [
     SubCategory(name: "Maintenance, repairs", icon: const Icon(Icons.handyman)),
     SubCategory(name: "Property insurance", icon: const Icon(Icons.security)),
   ]),
-  Category(id:3,name: "Transportation", icon: const Icon(Icons.directions_bus), color: const Color(0xfff47029), subCategories: [
+  Category(name: "Transportation", icon: const Icon(Icons.directions_bus), color: const Color(0xfff47029), subCategories: [
     SubCategory(name: "Public transport", icon: const Icon(Icons.directions_bus)),
     SubCategory(name: "Taxi", icon: const Icon(Icons.local_taxi)),
     SubCategory(name: "Long distance", icon: const Icon(Icons.train)),
     SubCategory(name: "Business trips", icon: const Icon(Icons.business_center)),
   ]),
-  Category(id:4,name: "Vehicle", icon: const Icon(Icons.directions_car), color: const Color(0xfff43f7d), subCategories: [
+  Category(name: "Vehicle", icon: const Icon(Icons.directions_car), color: const Color(0xfff43f7d), subCategories: [
     SubCategory(name: "Fuel", icon: const Icon(Icons.local_gas_station)),
     SubCategory(name: "Parking", icon: const Icon(Icons.local_parking)),
     SubCategory(name: "Vehicle maintenance", icon: const Icon(Icons.build)),
@@ -69,14 +67,14 @@ List<Category> categories = [
     SubCategory(name: "Vehicle insurance", icon: const Icon(Icons.security)),
     SubCategory(name: "Leasing", icon: const Icon(Icons.car_rental)),
   ]),
-  Category(id:5,name: "Life & Entertainment", icon: const Icon(Icons.movie), color: const Color(0xff61d41e)),
-  Category(id:6,name: "Communication, PC", icon: const Icon(Icons.computer), color: const Color(0xff516af3), subCategories: [
+  Category(name: "Life & Entertainment", icon: const Icon(Icons.movie), color: const Color(0xff61d41e)),
+  Category(name: "Communication, PC", icon: const Icon(Icons.computer), color: const Color(0xff516af3), subCategories: [
     SubCategory(name: "Phone, cell phone", icon: const Icon(Icons.phone)),
     SubCategory(name: "Internet", icon: const Icon(Icons.wifi)),
     SubCategory(name: "Software, apps, games", icon: const Icon(Icons.games)),
     SubCategory(name: "Postal services", icon: const Icon(Icons.local_post_office)),
   ]),
-  Category(id:7,name: "Financial expenses", icon: const Icon(Icons.account_balance_wallet), color: const Color(0xff0fb89f), subCategories: [
+  Category(name: "Financial expenses", icon: const Icon(Icons.account_balance_wallet), color: const Color(0xff0fb89f), subCategories: [
     SubCategory(name: "Taxes", icon: const Icon(Icons.attach_money)),
     SubCategory(name: "Insurances", icon: const Icon(Icons.security)),
     SubCategory(name: "Loan, interests", icon: const Icon(Icons.account_balance)),
@@ -85,7 +83,7 @@ List<Category> categories = [
     SubCategory(name: "Charges, Fees", icon: const Icon(Icons.money)),
     SubCategory(name: "Child Support", icon: const Icon(Icons.child_care)),
   ]),
-  Category(id:8,name: "Investments", icon: const Icon(Icons.trending_up), color: const Color(0xffa405f5), subCategories: [
+  Category(name: "Investments", icon: const Icon(Icons.trending_up), color: const Color(0xffa405f5), subCategories: [
     SubCategory(name: "Realty", icon: const Icon(Icons.home)),
     SubCategory(name: "Vehicles, chattels", icon: const Icon(Icons.directions_car)),
     SubCategory(name: "mili", icon: const Icon(Icons.military_tech)),
@@ -93,7 +91,7 @@ List<Category> categories = [
     SubCategory(name: "Savings", icon: const Icon(Icons.savings)),
     SubCategory(name: "Collections", icon: const Icon(Icons.collections)),
   ]),
-  Category(id:9,name: "Income", icon: const Icon(Icons.attach_money), color: const Color(0xfff1b82e), subCategories: [
+  Category(name: "Income", icon: const Icon(Icons.attach_money), color: const Color(0xfff1b82e), subCategories: [
     SubCategory(name: "Wage, invoices", icon: const Icon(Icons.receipt)),
     SubCategory(name: "Interests, dividends", icon: const Icon(Icons.attach_money)),
     SubCategory(name: "Sale", icon: const Icon(Icons.sell)),
@@ -106,7 +104,7 @@ List<Category> categories = [
     SubCategory(name: "Child Support", icon: const Icon(Icons.child_care)),
     SubCategory(name: "Gifts", icon: const Icon(Icons.card_giftcard)),
   ]),
-  Category(id:10,name: "Others", icon: const Icon(Icons.menu_sharp), color: const Color(0xff989898), subCategories: [
+  Category(name: "Others", icon: const Icon(Icons.menu_sharp), color: const Color(0xff989898), subCategories: [
     SubCategory(name: "Missing", icon: const Icon(Icons.help)),
   ]),
 ];

@@ -75,8 +75,8 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> with TickerProv
 
   @override
   Widget build(BuildContext context) {
-    double navBarHeight = Platform.isIOS ? 87 : 65;
-    double conNavBarHeight = Platform.isIOS ? 55 : 65;
+    double navBarHeight = Platform.isIOS ? 87 : 74;
+    double conNavBarHeight = Platform.isIOS ? 55 : 75;
     double borderRadius = Platform.isIOS ? 30 : 33;
     double conBorderRadius = Platform.isIOS ? 25 : 28;
 

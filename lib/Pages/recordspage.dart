@@ -1,8 +1,8 @@
+// lib/Pages/recordspage.dart
 import 'package:flutter/material.dart';
+import '../Components/recent_records_card.dart';
 import '../backend/Records.dart';
 import 'package:intl/intl.dart';
-
-import 'RecordsDetails.dart';
 
 class RecordsPage extends StatefulWidget {
   @override
@@ -14,6 +14,9 @@ class _RecordsPageState extends State<RecordsPage> {
   Widget build(BuildContext context) {
     // Sort records by date
     Records.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+
+    // Get the recent 5 records
+    List<Record> recentRecords = Records.take(5).toList();
 
     // Group records by day
     Map<String, List<Record>> groupedRecords = {};
@@ -31,6 +34,8 @@ class _RecordsPageState extends State<RecordsPage> {
       ),
       body: ListView(
         children: [
+          // Card for recent 5 records
+          // Existing grouped records list
           ...groupedRecords.entries.map((entry) {
             String dateKey = entry.key;
             List<Record> records = entry.value;
@@ -59,7 +64,7 @@ class _RecordsPageState extends State<RecordsPage> {
                       padding: const EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
                         color: record.category.color,
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: BorderRadius.circular(8.0), // Rounded corners
                       ),
                       child: IconTheme(
                         data: const IconThemeData(color: Colors.white),
@@ -70,11 +75,11 @@ class _RecordsPageState extends State<RecordsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(record.category.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text(record.account.name, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+                        Text(record.accountName, style: const TextStyle(color: Colors.grey, fontSize: 14)),
                       ],
                     ),
                     trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center, // Center the trailing column vertically
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
@@ -87,14 +92,6 @@ class _RecordsPageState extends State<RecordsPage> {
                         ),
                       ],
                     ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RecordDetailsPage(record: record),
-                        ),
-                      );
-                    },
                   );
                 }).toList(),
               ],
