@@ -56,6 +56,7 @@ class _MainPageState extends State<MainPage> {
     MorePage()// From settings_page.dart
   ];
 
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 class DateTimeCard extends StatefulWidget {
+  final Function(DateTime?) onDateTimeChanged;
+
+  DateTimeCard({required this.onDateTimeChanged});
+
   @override
   _DateTimeCardState createState() => _DateTimeCardState();
 }
@@ -8,6 +12,13 @@ class DateTimeCard extends StatefulWidget {
 class _DateTimeCardState extends State<DateTimeCard> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
+  DateTime? selectedDateTime;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedDateTime = DateTime.now(); // Initialize with the current date and time
+  }
 
   Future<void> _selectDateTime(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -25,6 +36,14 @@ class _DateTimeCardState extends State<DateTimeCard> {
         setState(() {
           selectedDate = pickedDate;
           selectedTime = pickedTime;
+          selectedDateTime = DateTime(
+            selectedDate!.year,
+            selectedDate!.month,
+            selectedDate!.day,
+            selectedTime!.hour,
+            selectedTime!.minute,
+          );
+          widget.onDateTimeChanged(selectedDateTime);
         });
       }
     }
@@ -47,6 +66,9 @@ class _DateTimeCardState extends State<DateTimeCard> {
     return GestureDetector(
       onTap: () => _selectDateTime(context),
       child: Card(
+        color: (selectedDate != null && selectedTime != null)
+            ? Theme.of(context).colorScheme.primary
+            : null,
         elevation: 1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
@@ -69,7 +91,8 @@ class _DateTimeCardState extends State<DateTimeCard> {
                 Text(
                   _formatDate(selectedDate!),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
@@ -77,7 +100,8 @@ class _DateTimeCardState extends State<DateTimeCard> {
                 Text(
                   selectedTime!.format(context),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),

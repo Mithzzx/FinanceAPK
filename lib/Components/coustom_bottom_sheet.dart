@@ -42,7 +42,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> with SingleTicker
       position: _offsetAnimation,
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHigh, // Use theme color
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(25.0),
             topRight: Radius.circular(25.0),
@@ -54,7 +54,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> with SingleTicker
   }
 }
 
-void showCustomBottomSheet(BuildContext context, Widget child) {
+void showCustomBottomSheet(BuildContext context, Widget child, VoidCallback onDismissed) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -67,5 +67,7 @@ void showCustomBottomSheet(BuildContext context, Widget child) {
         child: CustomBottomSheet(child: child),
       );
     },
-  );
+  ).then((_) {
+    onDismissed();
+  });
 }
