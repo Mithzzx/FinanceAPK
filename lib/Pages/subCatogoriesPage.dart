@@ -45,10 +45,7 @@ class SubCategoriesPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => AddTransactionPage(
-                          category: category,
-                          subCategory: null,
-                        ),
+                        builder: (context) => AddTransactionPage(),
                       ),
                     );
                   },
@@ -98,10 +95,7 @@ class SubCategoriesPage extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => AddTransactionPage(
-                                    category: category,
-                                    subCategory: subCategory,
-                                  ),
+                                  builder: (context) => AddTransactionPage(),
                                 ),
                               );
                             },

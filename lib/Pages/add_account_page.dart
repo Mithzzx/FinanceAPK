@@ -4,6 +4,8 @@ import '../backend/database_helper.dart';
 import '../backend/accounts.dart';
 
 class AddAccountPage extends StatefulWidget {
+  const AddAccountPage({super.key});
+
   @override
   _AddAccountPageState createState() => _AddAccountPageState();
 }
@@ -14,7 +16,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
   AccountType? _selectedAccountType;
   double _initialBalance = 0.0;
   String _currency = 'USD';
-  double _accountNumber = 0.0;
+  int _accountNumber = 0;
   Color _color = Colors.blue;
 
   void _saveAccount() async {
@@ -27,7 +29,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
 
       if (nameExists) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Account name already exists. Please choose a different name.')),
+          const SnackBar(content: Text('Account name already exists. Please choose a different name.')),
         );
         return;
       }
@@ -162,7 +164,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
                   return null;
                 },
                 onSaved: (value) {
-                  _accountNumber = double.parse(value!);
+                  _accountNumber = int.parse(value!);
                 },
               ),
               Row(

@@ -1,10 +1,11 @@
 import 'package:finance_apk/Pages/settings_page.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../Components/recent_records_card.dart';
 import '../backend/database_helper.dart';
 import '../backend/accounts.dart';
-import 'addAccountPage.dart';
+import 'add_account_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,13 +22,11 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _updateAccountsList();
-    DatabaseHelper().updateRecordsList();
-  }
-
-  void _updateAccountsList() async {
-    await DatabaseHelper().updateAccountsList();
-    setState(() {});
+    // Load the records when the page initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final state = Provider.of<FinanceState>(context, listen: false);
+      state.loadData();
+    });
   }
 
   @override
@@ -154,11 +153,14 @@ class HomePageState extends State<HomePage> {
             onTap: () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AddAccountPage()),
+                MaterialPageRoute(builder: (context) => const AddAccountPage()),
               );
               setState(() {
                 // Refresh the state
-                DatabaseHelper().updateAccountsList();
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  final state = Provider.of<FinanceState>(context, listen: false);
+                  state.loadData();
+                });
               });
             },
           child: SizedBox(
@@ -426,7 +428,7 @@ class HomePageState extends State<HomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                RecentRecordsCard(),
+                const RecentRecordsCard(),
                 const SizedBox(height: 10),
                 Card(
                   elevation: 3,

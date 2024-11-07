@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../backend/Records.dart';
+import '../backend/records.dart';
 import 'package:intl/intl.dart';
 
-import 'RecordsDetails.dart';
 
 class RecordsPage extends StatefulWidget {
   @override
@@ -13,11 +12,11 @@ class _RecordsPageState extends State<RecordsPage> {
   @override
   Widget build(BuildContext context) {
     // Sort records by date
-    Records.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    records.sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
     // Group records by day
     Map<String, List<Record>> groupedRecords = {};
-    for (var record in Records) {
+    for (var record in records) {
       String dateKey = DateFormat('yyyy-MM-dd').format(record.dateTime);
       if (!groupedRecords.containsKey(dateKey)) {
         groupedRecords[dateKey] = [];

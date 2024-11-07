@@ -25,13 +25,14 @@ class AccountTypes {
 
 AccountTypes accountTypes = AccountTypes();
 
+// Database Models
 class Account {
-  String name;
-  String currency;
-  double balance;
-  double accountNumber;
-  AccountType accountType;
-  Color color;
+  final String name;
+  final String currency;
+  final double balance;
+  final int accountNumber;
+  final AccountType accountType;
+  final Color color;
 
   Account({
     required this.name,
@@ -48,7 +49,7 @@ class Account {
       'currency': currency,
       'balance': balance,
       'accountNumber': accountNumber,
-      'accountType': accountType.name,
+      'accountType': accountTypes.getAllAccountTypes().firstWhere((element) => element.name == accountType.name).name,
       'color': color.value,
     };
   }
@@ -57,8 +58,8 @@ class Account {
     return Account(
       name: map['name'],
       currency: map['currency'],
-      balance: map['balance'].toDouble(),
-      accountNumber: map['accountNumber'].toDouble(),
+      balance: map['balance'],
+      accountNumber: map['accountNumber'],
       accountType: accountTypes.getAccountTypeByName(map['accountType']),
       color: Color(map['color']),
     );

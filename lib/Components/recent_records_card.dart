@@ -1,6 +1,8 @@
+import 'package:finance_apk/backend/Categories.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../Pages/recordspage.dart';
-import '../backend/Records.dart';
+import '../backend/records.dart';
 import '../backend/database_helper.dart';
 
 class RecentRecordsCard extends StatelessWidget {
@@ -9,18 +11,20 @@ class RecentRecordsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: DatabaseHelper().fetchRecords(),
+      future: FinanceState().loadData(), // Assuming this method returns a Future<List<Record>>
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
+          List<Record> records = FinanceState().records;
+
           // Sort records by date
-          Records.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+          records.sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
           // Get the recent 5 records
-          List<Record> recentRecords = Records.take(5).toList();
+          List<Record> recentRecords = records.take(5).toList();
 
           return Card(
             child: Column(
@@ -59,19 +63,19 @@ class RecentRecordsCard extends StatelessWidget {
                     leading: Container(
                       padding: const EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
-                        color: record.category.color,
+                        color: categories[record.categoryId].color,
                         borderRadius: BorderRadius.circular(8.0), // Rounded corners
                       ),
                       child: IconTheme(
                         data: const IconThemeData(color: Colors.white),
-                        child: record.category.icon,
+                        child: categories[record.categoryId].icon,
                       ),
                     ),
                     title: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(record.category.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text(record.account.name, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+                        Text(categories[record.categoryId].name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text(record.accountName, style: const TextStyle(color: Colors.grey, fontSize: 14)),
                       ],
                     ),
                     trailing: Column(
