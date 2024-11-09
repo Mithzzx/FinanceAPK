@@ -17,8 +17,6 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   final PageController _pageController = PageController(viewportFraction: 0.9);
 
-  void onPressed() {}
-
   @override
   void initState() {
     super.initState();
@@ -148,19 +146,19 @@ class HomePageState extends State<HomePage> {
           ),
         ),
         child: InkWell(
-            onTap: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddAccountPage()),
-              );
-              setState(() {
-                // Refresh the state
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  final state = Provider.of<FinanceState>(context, listen: false);
-                  state.loadData();
-                });
+          onTap: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddAccountPage()),
+            );
+            setState(() {
+              // Refresh the state
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final state = Provider.of<FinanceState>(context, listen: false);
+                state.loadData();
               });
-            },
+            });
+          },
           child: SizedBox(
             height: 90,
             width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 18,
@@ -219,246 +217,251 @@ class HomePageState extends State<HomePage> {
       return containers;
     }
 
-    List<Widget> slidingContainers = buildSlidingAccountsCon(accounts);
+    return Consumer<FinanceState>(
+      builder: (context, financeState, child) {
+        List<Account> accounts = financeState.accounts;
+        List<Widget> slidingContainers = buildSlidingAccountsCon(accounts);
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(
-        children: [
-          const SizedBox(height: 45),
-          Stack(
+        return SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              const SizedBox(height: 45),
+              Stack(
                 children: [
-                  IconButton(
-                    onPressed: onPressed,
-                    icon: const Icon(Icons.notifications),
-                    iconSize: topIconSize,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.notifications),
+                        iconSize: topIconSize,
+                      ),
+                      IconButton(
+                        onPressed: onSettingsPressed,
+                        icon: const Icon(Icons.settings),
+                        iconSize: topIconSize,
+                      )
+                    ],
                   ),
-                  IconButton(
-                    onPressed: onSettingsPressed,
-                    icon: const Icon(Icons.settings),
-                    iconSize: topIconSize,
-                  )
-                ],
-              ),
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: onPressed,
-                    icon: const Icon(Icons.menu_sharp),
-                    iconSize: topIconSize,
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.menu_sharp),
+                        iconSize: topIconSize,
+                      ),
+                    ],
                   ),
                 ],
-              ),
-            ],
-          ), // Top Icons
-          const SizedBox(height: 10),
-          Stack(
-            children: [
-              Row(
+              ), // Top Icons
+              const SizedBox(height: 10),
+              Stack(
                 children: [
-                  SizedBox(width: homePagePadding + 15),
-                  SizedBox(
-                    width: 280,
-                    height: 150,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 25),
-                        const Text(
-                          "TOTAL BALANCE",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                          ),
-                        ),
-                        const Row(
+                  Row(
+                    children: [
+                      SizedBox(width: homePagePadding + 15),
+                      SizedBox(
+                        width: 280,
+                        height: 150,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              "₹",
+                            const SizedBox(height: 25),
+                            const Text(
+                              "TOTAL BALANCE",
                               style: TextStyle(
-                                fontSize: 36,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
                               ),
                             ),
-                            Text(
-                              "13,370.98",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 36,
-                              ),
-                            ),
-                          ],
-                        ), // Total Balance
-                        const SizedBox(height: 5),
-                        Row(
-                          children: [
-                            FilledButton.tonal(
-                              onPressed: onPressed,
-                              style: ButtonStyle(
-                                minimumSize: WidgetStateProperty.all(const Size(85, 35)),
-                                padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
-                                  const EdgeInsets.symmetric(horizontal: 5),
-                                ),
-                                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                            const Row(
+                              children: [
+                                Text(
+                                  "₹",
+                                  style: TextStyle(
+                                    fontSize: 36,
                                   ),
                                 ),
-                              ),
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-                                  Icon(
-                                    Icons.monetization_on,
-                                    size: 15,
+                                Text(
+                                  "13,370.98",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 36,
                                   ),
-                                  SizedBox(width: 2),
-                                  Text(
-                                    "₹36.44",
-                                    style: TextStyle(
-                                      fontSize: 11.5,
+                                ),
+                              ],
+                            ), // Total Balance
+                            const SizedBox(height: 5),
+                            Row(
+                              children: [
+                                FilledButton.tonal(
+                                  onPressed: () {},
+                                  style: ButtonStyle(
+                                    minimumSize: WidgetStateProperty.all(const Size(85, 35)),
+                                    padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
+                                      const EdgeInsets.symmetric(horizontal: 5),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: onPressed,
-                              child: const Row(
-                                children: [
-                                  Text(
-                                    "Cashback saved",
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.only(bottom: 2),
-                                    child: Text(
-                                      " >",
-                                      style: TextStyle(
-                                        fontSize: 12,
+                                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
-                            )
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Icon(
+                                        Icons.monetization_on,
+                                        size: 15,
+                                      ),
+                                      SizedBox(width: 2),
+                                      Text(
+                                        "₹36.44",
+                                        style: TextStyle(
+                                          fontSize: 11.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {},
+                                  child: const Row(
+                                    children: [
+                                      Text(
+                                        "Cashback saved",
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(bottom: 2),
+                                        child: Text(
+                                          " >",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ), // Cashback saved
                           ],
-                        ), // Cashback saved
-                      ],
-                    ),
-                  )
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Transform.translate(
-                    offset: const Offset(85, 0),
-                    child: Stack(
-                      alignment: Alignment.centerRight,
-                      children: [
-                        Card(
-                          color: Colors.blue,
-                          elevation: 3,
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 50),
-                            child: SizedBox(
-                              width: 165, // Set the width of the card
-                              height: 110, // Set the height of the card
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10), // Ensures image follows the card's rounded corners
-                                child: Image.asset(
-                                  'asset/images/cards/card2.JPEG', // Replace with your image URL
-                                  fit: BoxFit.cover, // Ensures the image covers the entire card without distortion
+                        ),
+                      )
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Transform.translate(
+                        offset: const Offset(85, 0),
+                        child: Stack(
+                          alignment: Alignment.centerRight,
+                          children: [
+                            Card(
+                              color: Colors.blue,
+                              elevation: 3,
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 50),
+                                child: SizedBox(
+                                  width: 165, // Set the width of the card
+                                  height: 110, // Set the height of the card
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10), // Ensures image follows the card's rounded corners
+                                    child: Image.asset(
+                                      'asset/images/cards/card2.JPEG', // Replace with your image URL
+                                      fit: BoxFit.cover, // Ensures the image covers the entire card without distortion
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                        Card(
-                          elevation: 3,
-                          child: SizedBox(
-                            width: 195, // Set the width of the card
-                            height: 130, // Set the height of the card
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10), // Ensures image follows the card's rounded corners
-                              child: Image.asset(
-                                'asset/images/cards/card1.JPEG', // Replace with your image URL
-                                fit: BoxFit.cover, // Ensures the image covers the entire card without distortion
+                            Card(
+                              elevation: 3,
+                              child: SizedBox(
+                                width: 195, // Set the width of the card
+                                height: 130, // Set the height of the card
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10), // Ensures image follows the card's rounded corners
+                                  child: Image.asset(
+                                    'asset/images/cards/card1.JPEG', // Replace with your image URL
+                                    fit: BoxFit.cover, // Ensures the image covers the entire card without distortion
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
+                      )
+                    ],
                   )
                 ],
-              )
+              ), // Total Balance
+              const SizedBox(height: 25),
+              SizedBox(
+                height: 208, // Adjust height as needed
+                child: PageView(
+                  controller: _pageController,
+                  children: slidingContainers,
+                ),
+              ), // Sliding Accounts
+              const SizedBox(height: 10),
+              SmoothPageIndicator(
+                controller: _pageController,
+                count: slidingContainers.length,
+                effect: ExpandingDotsEffect(
+                  dotHeight: 8,
+                  dotWidth: 8,
+                  activeDotColor: Theme.of(context).brightness == Brightness.dark
+                      ? Theme.of(context).colorScheme.inversePrimary : Theme.of(context).primaryColor,
+                  dotColor: Colors.grey,
+                ),
+              ), // Dot Indicator
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const RecentRecordsCard(),
+                    const SizedBox(height: 10),
+                    Card(
+                      elevation: 3,
+                      child: SizedBox(
+                        height: 220,
+                        width: MediaQuery.of(context).size.width - (homePagePadding + 35),
+                        child: const Center(child: Text("DEMO CARD 2")),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Card(
+                      elevation: 3,
+                      child: SizedBox(
+                        height: 220,
+                        width: MediaQuery.of(context).size.width - (homePagePadding + 35),
+                        child: const Center(child: Text("DEMO CARD 3")),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Card(
+                      elevation: 3,
+                      child: SizedBox(
+                        height: 220,
+                        width: MediaQuery.of(context).size.width - (homePagePadding + 35),
+                        child: const Center(child: Text("DEMO CARD 4")),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
-          ), // Total Balance
-          const SizedBox(height: 25),
-          SizedBox(
-            height: 208, // Adjust height as needed
-            child: PageView(
-              controller: _pageController,
-              children: slidingContainers,
-            ),
-          ), // Sliding Accounts
-          const SizedBox(height: 10),
-          SmoothPageIndicator(
-            controller: _pageController,
-            count: slidingContainers.length,
-            effect: ExpandingDotsEffect(
-              dotHeight: 8,
-              dotWidth: 8,
-              activeDotColor: Theme.of(context).brightness == Brightness.dark
-                  ? Theme.of(context).colorScheme.inversePrimary : Theme.of(context).primaryColor,
-              dotColor: Colors.grey,
-            ),
-          ), // Dot Indicator
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const RecentRecordsCard(),
-                const SizedBox(height: 10),
-                Card(
-                  elevation: 3,
-                  child: SizedBox(
-                    height: 220,
-                    width: MediaQuery.of(context).size.width - (homePagePadding + 35),
-                    child: const Center(child: Text("DEMO CARD 2")),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Card(
-                  elevation: 3,
-                  child: SizedBox(
-                    height: 220,
-                    width: MediaQuery.of(context).size.width - (homePagePadding + 35),
-                    child: const Center(child: Text("DEMO CARD 3")),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Card(
-                  elevation: 3,
-                  child: SizedBox(
-                    height: 220,
-                    width: MediaQuery.of(context).size.width - (homePagePadding + 35),
-                    child: const Center(child: Text("DEMO CARD 4")),
-                  ),
-                ),
-              ],
-            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
