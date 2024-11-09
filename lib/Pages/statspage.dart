@@ -40,7 +40,7 @@ class StatsPageState extends State<StatsPage> {
         title: const Text('Statistics'),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(left: 22, right: 22, top: 10),
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
         child: ListView.builder(
           itemCount: texts.length,
           itemBuilder: (context, index) {

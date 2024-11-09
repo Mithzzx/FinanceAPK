@@ -144,7 +144,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> with TickerProv
                       },
                       child: const Icon(Icons.next_plan),
                     ),
-                    label: 'Budgets',
+                    label: 'Planning',
                   ),
                   const BottomNavigationBarItem(
                     icon: Icon(null),

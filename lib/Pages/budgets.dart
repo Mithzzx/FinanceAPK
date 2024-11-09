@@ -1,61 +1,88 @@
 import 'package:flutter/material.dart';
 
-class BudgetsPage extends StatefulWidget {
+import 'Planning/goals_page.dart';
+
+class PlanningPage extends StatefulWidget {
+  const PlanningPage({super.key});
+
   @override
-  State<BudgetsPage> createState() => BudgetsPageState();
+  State<PlanningPage> createState() => PlanningPageState();
 }
 
-class BudgetsPageState extends State<BudgetsPage> {
-
+class PlanningPageState extends State<PlanningPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Budgets & Goals'),
+        title: const Text('Planning'),
       ),
-      body: const Padding(
-        padding: EdgeInsets.all(22),
+      body: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Budgets',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Card(
-              elevation: 1.3,
-              margin: EdgeInsets.symmetric(vertical: 8),
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            buildCard('Budgets', 'Your spending plan', Icons.star, Colors.blue, () {}),
+            buildCard('Goals', 'Your saving plans', Icons.favorite, Colors.red, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const GoalsPage()),
+              );
+            }),
+            buildCard('Planned Payments', 'Your future payments', Icons.thumb_up, Colors.green, () {}),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildCard(String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
+    return Card(
+      elevation: 1.3,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Weekly',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        Divider(
-                          color: Colors.grey,
-                          thickness: 1,
-                        ),
-                        Text(
-                          '₹ 32,000.54',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 21,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.2),
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 24,
+                ),
+              ),
+            ],
+          ),
         ),
-        ),
-      );
+      ),
+    );
   }
 }

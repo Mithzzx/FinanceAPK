@@ -54,7 +54,7 @@ class _MainPageState extends State<MainPage> {
   // Define your pages as separate widgets
   final List<Widget> _pages = [
     HomePage(),  // From home_page.dart
-    BudgetsPage(),
+    PlanningPage(),
     StatsPage(),
     StatsPage(),// From budgets_page.dart
     MorePage()// From settings_page.dart
