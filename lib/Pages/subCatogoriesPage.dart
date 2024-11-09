@@ -95,7 +95,7 @@ class SubCategoriesPage extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => AddTransactionPage(),
+                                  builder: (context) => AddTransactionPage(selectedSubCategory: subCategory,selectedCategory: category),
                                 ),
                               );
                             },

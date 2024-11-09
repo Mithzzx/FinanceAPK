@@ -22,11 +22,9 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // Load the records when the page initializes
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final state = Provider.of<FinanceState>(context, listen: false);
-      state.loadData();
-    });
+    // Load initial data
+    Future.microtask(() =>
+        Provider.of<FinanceState>(context, listen: false).loadData());
   }
 
   @override

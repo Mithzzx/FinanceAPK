@@ -7,6 +7,7 @@ import 'Pages/budgets.dart';
 import 'Pages/homepage.dart';
 import 'Pages/statspage.dart';
 import 'Pages/theme_provider.dart';
+import 'backend/database_helper.dart';
 
 
 void main() {
@@ -29,10 +30,13 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: themeProvider.themeData, // Use the theme from the provider
-          home: MainPage(),
+        return ChangeNotifierProvider(
+            create: (_) => FinanceState(),
+            child: MaterialApp(
+              debugShowCheckedModeBanner: false,
+              theme: themeProvider.themeData, // Use the theme from the provider
+              home: MainPage(),
+            )
         );
       },
     );

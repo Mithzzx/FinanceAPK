@@ -3,11 +3,11 @@ class Record {
   final double amount;
   final String accountName;
   final int categoryId;
-  final DateTime dateTime;
+  final DateTime dateTime;  // Now stores both date and time
   final String? label;
   final String? notes;
   final String? payee;
-  final String? paymentType;
+  final String paymentType;
 
   Record({
     this.id,
@@ -18,7 +18,7 @@ class Record {
     this.label,
     this.notes,
     this.payee,
-    this.paymentType,
+    required this.paymentType,
   });
 
   Map<String, dynamic> toMap() {
@@ -27,7 +27,7 @@ class Record {
       'amount': amount,
       'accountName': accountName,
       'categoryId': categoryId,
-      'dateTime': dateTime.toIso8601String(),
+      'dateTime': dateTime.toIso8601String(),  // Store as ISO8601 string
       'label': label,
       'notes': notes,
       'payee': payee,
@@ -41,7 +41,7 @@ class Record {
       amount: map['amount'],
       accountName: map['accountName'],
       categoryId: map['categoryId'],
-      dateTime: DateTime.parse(map['dateTime']),
+      dateTime: DateTime.parse(map['dateTime']),  // Parse from ISO8601 string
       label: map['label'],
       notes: map['notes'],
       payee: map['payee'],
