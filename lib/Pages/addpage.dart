@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../backend/database_helper.dart';
@@ -32,6 +33,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   String _selectedPaymentType = 'Cash';
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
+  int _selectedTransactionType = 0; // 0: Expense, 1: Income, 2: Transfer
 
   final List<String> _paymentTypes = ['Cash', 'Card', 'Transfer', 'Other'];
 
@@ -77,6 +79,28 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     }
   }
 
+  Future<void> _updateAccountBalance(FinanceState financeState, String accountName, double amount) async {
+    final db = await DatabaseHelper().database;
+    final account = financeState.accounts.firstWhere((acc) => acc.name == accountName);
+
+    double newBalance = account.balance;
+    if (_selectedTransactionType == 0) { // Expense
+      newBalance -= amount.abs();
+    } else if (_selectedTransactionType == 1) { // Income
+      newBalance += amount.abs();
+    }
+    // For transfers, you might want to handle both accounts
+
+    await db.update(
+      'Accounts',
+      {'balance': newBalance},
+      where: 'name = ?',
+      whereArgs: [accountName],
+    );
+
+    await financeState.loadData(); // Refresh the state
+  }
+
   void _navigateToCategorySelection() async {
     final result = await Navigator.push(
       context,
@@ -107,11 +131,45 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Transaction Type Selector
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 16.0),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: CupertinoSlidingSegmentedControl<int>(
+                  backgroundColor: Colors.transparent,
+                  thumbColor: Theme.of(context).colorScheme.primary,
+                  groupValue: _selectedTransactionType,
+                  children: const {
+                    0: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Text('Expense', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    1: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Text('Income', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    2: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Text('Transfer', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  },
+                  onValueChanged: (value) {
+                    setState(() {
+                      _selectedTransactionType = value!;
+                    });
+                  },
+                ),
+              ),
+
               TextFormField(
                 controller: _amountController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Amount',
-                  prefixIcon: Icon(Icons.attach_money),
+                  prefixIcon: const Icon(Icons.attach_money),
+                  prefixText: _selectedTransactionType == 0 ? '- ' : '+ ',
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -124,7 +182,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
 
               DropdownButtonFormField<String>(
                 value: _selectedAccount,
@@ -258,8 +315,16 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                       _selectedTime.minute,
                     );
 
+                    double amount = double.parse(_amountController.text);
+                    // Apply sign based on transaction type
+                    if (_selectedTransactionType == 0) { // Expense
+                      amount = -amount.abs();
+                    } else { // Income or Transfer
+                      amount = amount.abs();
+                    }
+
                     final record = Record(
-                      amount: double.parse(_amountController.text),
+                      amount: amount,
                       accountName: _selectedAccount!,
                       categoryId: _selectedCategory!.id,
                       dateTime: combinedDateTime,
@@ -270,6 +335,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     );
 
                     await financeState.addRecord(record);
+                    await _updateAccountBalance(financeState, _selectedAccount!, amount);
+
                     Navigator.pop(context);
                     Navigator.pop(context);
                     Navigator.pop(context);
