@@ -4,17 +4,17 @@ import 'package:provider/provider.dart';
 import '../backend/database_helper.dart';
 import '../backend/records.dart';
 import '../backend/Categories.dart';
-import 'categoriespage.dart';
+import 'categories_page.dart';
 
 class AddTransactionPage extends StatefulWidget {
   final Category? selectedCategory;
   final SubCategory? selectedSubCategory;
 
   const AddTransactionPage({
-    Key? key,
+    super.key,
     this.selectedCategory,
     this.selectedSubCategory,
-  }) : super(key: key);
+  });
 
   @override
   _AddTransactionPageState createState() => _AddTransactionPageState();
@@ -135,7 +135,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 16.0),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: CupertinoSlidingSegmentedControl<int>(

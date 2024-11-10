@@ -68,13 +68,13 @@ class GoalsPage extends StatelessWidget {
                     width: 55,
                     height: 55,
                     decoration: BoxDecoration(
-                      color: goal.color.withOpacity(0.2),
+                      color: goal.color,
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
                       goal.icon.icon,
-                      color: goal.color,
+                      color: Colors.white,
                       size: 24,
                     ),
                   ),

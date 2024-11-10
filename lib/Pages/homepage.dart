@@ -422,37 +422,34 @@ class HomePageState extends State<HomePage> {
                 ),
               ), // Dot Indicator
               const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16),
+              const Padding(
+                padding: EdgeInsets.only(left: 6, right: 6),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const RecentRecordsCard(),
-                    const SizedBox(height: 10),
+                    RecentRecordsCard(),
+                    SizedBox(height: 10),
                     Card(
                       elevation: 3,
                       child: SizedBox(
                         height: 220,
-                        width: MediaQuery.of(context).size.width - (homePagePadding + 35),
-                        child: const Center(child: Text("DEMO CARD 2")),
+                        child: Center(child: Text("DEMO CARD 2")),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10),
                     Card(
                       elevation: 3,
                       child: SizedBox(
                         height: 220,
-                        width: MediaQuery.of(context).size.width - (homePagePadding + 35),
-                        child: const Center(child: Text("DEMO CARD 3")),
+                        child: Center(child: Text("DEMO CARD 3")),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10),
                     Card(
                       elevation: 3,
                       child: SizedBox(
                         height: 220,
-                        width: MediaQuery.of(context).size.width - (homePagePadding + 35),
-                        child: const Center(child: Text("DEMO CARD 4")),
+                        child: Center(child: Text("DEMO CARD 4")),
                       ),
                     ),
                   ],

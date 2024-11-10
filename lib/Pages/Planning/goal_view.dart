@@ -6,28 +6,67 @@ import '../../backend/database_helper.dart';
 import '../../backend/goals.dart';
 import 'goals_add.dart';
 
-class GoalViewPage extends StatelessWidget {
+class GoalViewPage extends StatefulWidget {
   final Goal goal;
 
   const GoalViewPage({super.key, required this.goal});
 
   @override
+  _GoalViewPageState createState() => _GoalViewPageState();
+}
+
+class _GoalViewPageState extends State<GoalViewPage> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+  late double _savedAmount;
+
+  @override
+  void initState() {
+    super.initState();
+    _savedAmount = widget.goal.savedAmount;
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
+    _animation = Tween<double>(begin: 0, end: _savedAmount / widget.goal.targetAmount).animate(_animationController)
+      ..addListener(() {
+        setState(() {});
+      });
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _refreshPage(double newSavedAmount) {
+    setState(() {
+      _savedAmount = newSavedAmount;
+      _animation = Tween<double>(begin: 0, end: _savedAmount / widget.goal.targetAmount).animate(_animationController)
+        ..addListener(() {
+          setState(() {});
+        });
+      _animationController.forward(from: 0);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final progressPercentage = (goal.savedAmount / goal.targetAmount).clamp(0.0, 1.0);
-    final daysLeft = goal.deadlineDate.difference(DateTime.now()).inDays;
+    final daysLeft = widget.goal.deadlineDate.difference(DateTime.now()).inDays;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(goal.name),
+        title: Text(widget.goal.name),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () {
-              // Navigate to edit page
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AddGoalPage(goalToEdit: goal),
+                  builder: (context) => AddGoalPage(goalToEdit: widget.goal),
                 ),
               );
             },
@@ -40,19 +79,23 @@ class GoalViewPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Circular Progress with Icon
               SizedBox(
                 height: 300,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    CustomPaint(
-                      size: const Size(300, 300),
-                      painter: CircularProgressPainter(
-                        progress: progressPercentage,
-                        color: goal.color,
-                        strokeWidth: 15,
-                      ),
+                    AnimatedBuilder(
+                      animation: _animationController,
+                      builder: (context, child) {
+                        return CustomPaint(
+                          size: const Size(300, 300),
+                          painter: CircularProgressPainter(
+                            progress: _animation.value,
+                            color: widget.goal.color,
+                            strokeWidth: 15,
+                          ),
+                        );
+                      },
                     ),
                     Column(
                       mainAxisSize: MainAxisSize.min,
@@ -60,17 +103,17 @@ class GoalViewPage extends StatelessWidget {
                         IconTheme(
                           data: IconThemeData(
                             size: 48,
-                            color: goal.color,
+                            color: widget.goal.color,
                           ),
-                          child: goal.icon,
+                          child: widget.goal.icon,
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '${(progressPercentage * 100).toStringAsFixed(1)}%',
-                          style: Theme.of(context).textTheme.headlineMedium,
+                          '${(_animation.value * 100).toStringAsFixed(1)}%',
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
                         Text(
-                          '\$${goal.savedAmount.toStringAsFixed(2)} / \$${goal.targetAmount.toStringAsFixed(2)}',
+                          '\$${_savedAmount.toStringAsFixed(2)} / \$${widget.goal.targetAmount.toStringAsFixed(2)}',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ],
@@ -79,8 +122,6 @@ class GoalViewPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-
-              // Goal Details Card
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -95,7 +136,7 @@ class GoalViewPage extends StatelessWidget {
                       DetailRow(
                         icon: Icons.calendar_today,
                         label: 'Deadline',
-                        value: '${goal.deadlineDate.year}-${goal.deadlineDate.month.toString().padLeft(2, '0')}-${goal.deadlineDate.day.toString().padLeft(2, '0')}',
+                        value: '${widget.goal.deadlineDate.year}-${widget.goal.deadlineDate.month.toString().padLeft(2, '0')}-${widget.goal.deadlineDate.day.toString().padLeft(2, '0')}',
                       ),
                       DetailRow(
                         icon: Icons.timer,
@@ -105,22 +146,19 @@ class GoalViewPage extends StatelessWidget {
                       DetailRow(
                         icon: Icons.attach_money,
                         label: 'Amount Needed',
-                        value: '\$${(goal.targetAmount - goal.savedAmount).toStringAsFixed(2)}',
+                        value: '\$${(widget.goal.targetAmount - _savedAmount).toStringAsFixed(2)}',
                       ),
-                      if (goal.notes != null && goal.notes!.isNotEmpty)
+                      if (widget.goal.notes != null && widget.goal.notes!.isNotEmpty)
                         DetailRow(
                           icon: Icons.note,
                           label: 'Notes',
-                          value: goal.notes!,
+                          value: widget.goal.notes!,
                         ),
                     ],
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
-
-              // Add Money Button
               ElevatedButton.icon(
                 onPressed: () {
                   _showAddMoneyDialog(context);
@@ -131,7 +169,7 @@ class GoalViewPage extends StatelessWidget {
                   child: Text('Add Money to Goal'),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: goal.color,
+                  backgroundColor: widget.goal.color,
                 ),
               ),
             ],
@@ -166,10 +204,11 @@ class GoalViewPage extends StatelessWidget {
                 if (controller.text.isNotEmpty) {
                   final amount = double.tryParse(controller.text);
                   if (amount != null) {
-                    // Update goal with new amount
+                    final newSavedAmount = amount + widget.goal.savedAmount;
                     Provider.of<FinanceState>(context, listen: false)
-                         .updateGoalSavedAmount(goal.id!, amount + goal.savedAmount);
+                        .updateGoalSavedAmount(widget.goal.id!, newSavedAmount);
                     Navigator.pop(context);
+                    _refreshPage(newSavedAmount);
                   }
                 }
               },
