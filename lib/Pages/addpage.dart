@@ -271,6 +271,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
                     await financeState.addRecord(record);
                     Navigator.pop(context);
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                    Navigator.pop(context);
                   }
                 },
                 child: const Padding(
