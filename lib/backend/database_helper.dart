@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'accounts.dart';
+import 'budgets.dart';
 import 'goals.dart';
 import 'records.dart';
 
@@ -68,6 +69,23 @@ class DatabaseHelper {
         notes TEXT
       )
     ''');
+
+        await db.execute('''
+      CREATE TABLE Budgets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        totalAmount REAL NOT NULL,
+        spentAmount REAL NOT NULL,
+        period TEXT NOT NULL,
+        categoryIds TEXT NOT NULL,
+        accountName TEXT NOT NULL,
+        overspendAlert INTEGER NOT NULL,
+        alertAt75Percent INTEGER NOT NULL,
+        FOREIGN KEY (accountName) REFERENCES Accounts (name)
+          ON DELETE CASCADE
+          ON UPDATE CASCADE
+      )
+    ''');
     }
 
 // Account operations
@@ -106,6 +124,28 @@ class DatabaseHelper {
         final List<Map<String, dynamic>> maps = await db.query('Goals');
         return List.generate(maps.length, (i) => Goal.fromMap(maps[i]));
     }
+// Budget operations
+    Future<void> insertBudget(Budget budget) async {
+        final db = await database;
+        await db.insert('Budgets', budget.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
+    }
+
+    Future<List<Budget>> getBudgets() async {
+        final db = await database;
+        final List<Map<String, dynamic>> maps = await db.query('Budgets');
+        return List.generate(maps.length, (i) => Budget.fromMap(maps[i]));
+    }
+
+    Future<void> updateBudgetSpentAmount(int budgetId, double newAmount) async {
+        final db = await database;
+        await db.update(
+            'Budgets',
+            {'spentAmount': newAmount},
+            where: 'id = ?',
+            whereArgs: [budgetId],
+        );
+    }
 }
 
 // State Management
@@ -113,16 +153,19 @@ class FinanceState extends ChangeNotifier {
     List<Account> _accounts = [];
     List<Record> _records = [];
     List<Goal> _goals = [];
+    List<Budget> _budgets = [];
     final DatabaseHelper _db = DatabaseHelper();
 
     List<Account> get accounts => _accounts;
     List<Record> get records => _records;
     List<Goal> get goals => _goals;
+    List<Budget> get budgets => _budgets;
 
     Future<void> loadData() async {
         _accounts = await _db.getAccounts();
         _records = await _db.getRecords();
         _goals = await _db.getGoals();
+        _budgets = await _db.getBudgets();
         notifyListeners();
     }
 
@@ -171,5 +214,63 @@ class FinanceState extends ChangeNotifier {
             whereArgs: [goalId],
         );
         await loadData();
+    }
+
+    Future<List<Budget>> getBudgets() async {
+        return _budgets;
+    }
+
+    Future<List<Record>> getRecords() async {
+        return _records;
+    }
+
+    Future<void> addBudget(Budget budget) async {
+        await _db.insertBudget(budget);
+        await loadData();
+    }
+
+    Future<void> updateBudgetSpentAmount(int budgetId, double newAmount) async {
+        await _db.updateBudgetSpentAmount(budgetId, newAmount);
+        await loadData();  // Reload all data to refresh the state
+    }
+
+    Future<void> updateBudgets() async {
+        final budgets = await getBudgets();
+        final records = await getRecords();
+
+        for (var budget in budgets) {
+            double spentAmount = 0.0;
+            final DateTime now = DateTime.now();
+
+            for (var record in records) {
+                if (!budget.categoryIds.contains(record.categoryId)) continue;
+                if (budget.accountName != record.accountName) continue;
+
+                final recordDate = DateTime.parse(record.dateTime as String);
+                bool shouldCount = false;
+
+                switch (budget.period) {
+                    case 'weekly':
+                        shouldCount = recordDate.isAfter(now.subtract(const Duration(days: 7)));
+                        break;
+                    case 'monthly':
+                        shouldCount = recordDate.year == now.year &&
+                            recordDate.month == now.month;
+                        break;
+                    case 'yearly':
+                        shouldCount = recordDate.year == now.year;
+                        break;
+                    case 'onetime':
+                        shouldCount = true;
+                        break;
+                }
+
+                if (shouldCount) {
+                    spentAmount += record.amount;
+                }
+            }
+
+            await updateBudgetSpentAmount(budget.id!, spentAmount);
+        }
     }
 }

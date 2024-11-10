@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'Planning/budgets_page.dart';
 import 'Planning/goals_page.dart';
 
 class PlanningPage extends StatefulWidget {
@@ -20,7 +21,12 @@ class PlanningPageState extends State<PlanningPage> {
         padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
         child: Column(
           children: [
-            buildCard('Budgets', 'Your spending plan', Icons.star, Colors.blue, () {}),
+            buildCard('Budgets', 'Your spending plan', Icons.star, Colors.blue, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => BudgetsPage()),
+              );
+            }),
             buildCard('Goals', 'Your saving plans', Icons.favorite, Colors.red, () {
               Navigator.push(
                 context,

@@ -3,7 +3,7 @@ import 'package:finance_apk/Pages/morepage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'Components/AppBar/bottom_nav_bar.dart';
-import 'Pages/budgets.dart';
+import 'Pages/plannings_page.dart';
 import 'Pages/homepage.dart';
 import 'Pages/statspage.dart';
 import 'Pages/theme_provider.dart';
