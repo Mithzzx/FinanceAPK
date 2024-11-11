@@ -28,9 +28,14 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     double topIconSize = 27;
-    double homePagePadding = 8;
-    double slidingAccountsPadding = homePagePadding + 10;
+    double homePagePadding = 12;
+    double slidingAccountsPadding = homePagePadding + 6;
     double slidingAccountsSpacing = 7;
+
+    // Calculate total balance from all accounts
+    double calculateTotalBalance(List<Account> accounts) {
+      return accounts.fold(0, (sum, account) => sum + account.balance);
+    }
 
     Widget slidingAccountsCard(Account account) {
       return Card(
@@ -39,7 +44,7 @@ class HomePageState extends State<HomePage> {
           children: [
             Container(
               height: 90,
-              width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 18,
+              width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 16,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topRight,
@@ -133,7 +138,7 @@ class HomePageState extends State<HomePage> {
         elevation: 3,
         child: SizedBox(
           height: 90,
-          width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 18,
+          width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 16,
         ),
       );
       Widget addAccountCard = Card(
@@ -161,7 +166,7 @@ class HomePageState extends State<HomePage> {
           },
           child: SizedBox(
             height: 90,
-            width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 18,
+            width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 16,
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: Column(
@@ -221,6 +226,7 @@ class HomePageState extends State<HomePage> {
       builder: (context, financeState, child) {
         List<Account> accounts = financeState.accounts;
         List<Widget> slidingContainers = buildSlidingAccountsCon(accounts);
+        var totalBalance = calculateTotalBalance(accounts);
 
         return SingleChildScrollView(
           scrollDirection: Axis.vertical,
@@ -260,7 +266,7 @@ class HomePageState extends State<HomePage> {
                 children: [
                   Row(
                     children: [
-                      SizedBox(width: homePagePadding + 15),
+                      SizedBox(width: homePagePadding),
                       SizedBox(
                         width: 280,
                         height: 150,
@@ -275,17 +281,17 @@ class HomePageState extends State<HomePage> {
                                 fontSize: 12,
                               ),
                             ),
-                            const Row(
+                            Row(
                               children: [
-                                Text(
+                                const Text(
                                   "₹",
                                   style: TextStyle(
                                     fontSize: 36,
                                   ),
                                 ),
                                 Text(
-                                  "13,370.98",
-                                  style: TextStyle(
+                                  totalBalance.toStringAsFixed(2),
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 36,
                                   ),
@@ -423,7 +429,7 @@ class HomePageState extends State<HomePage> {
               ), // Dot Indicator
               const SizedBox(height: 10),
               const Padding(
-                padding: EdgeInsets.only(left: 6, right: 6),
+                padding: EdgeInsets.only(left: 10, right: 10),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
