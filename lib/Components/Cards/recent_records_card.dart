@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../Pages/recordspage.dart';
-import '../backend/records.dart';
-import '../backend/database_helper.dart';
-import '../backend/Categories.dart';
+import '../../Pages/recordspage.dart';
+import '../../backend/records.dart';
+import '../../backend/database_helper.dart';
+import '../../backend/Categories.dart';
 import 'package:intl/intl.dart';
 
 class RecentRecordsCard extends StatelessWidget {
@@ -11,6 +11,11 @@ class RecentRecordsCard extends StatelessWidget {
 
   Widget _buildRecordTile(Record record) {
     final category = categories[record.categoryId];
+    final amountText = record.amount < 0
+        ? '-\$${record.amount.abs().toStringAsFixed(2)}'
+        : '\$${record.amount.toStringAsFixed(2)}';
+    final formattedDate = DateFormat('dd,MMM').format(record.dateTime);
+
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8.0),
@@ -28,17 +33,11 @@ class RecentRecordsCard extends StatelessWidget {
         children: [
           Text(
             category.name,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           Text(
             record.accountName,
-            style: const TextStyle(
-              color: Colors.grey,
-              fontSize: 14,
-            ),
+            style: const TextStyle(color: Colors.grey, fontSize: 14),
           ),
         ],
       ),
@@ -47,14 +46,11 @@ class RecentRecordsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
-            '\$${record.amount.toStringAsFixed(2)}',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            amountText,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           Text(
-            DateFormat('HH:mm').format(record.dateTime),
+            '$formattedDate ${record.dateTime.hour.toString().padLeft(2, '0')}:${record.dateTime.minute.toString().padLeft(2, '0')}',
             style: const TextStyle(color: Colors.grey),
           ),
         ],
@@ -64,7 +60,7 @@ class RecentRecordsCard extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 16.5, right: 15, top: 3),
+      padding: const EdgeInsets.only(left: 15, right: 5, top: 3),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -72,7 +68,7 @@ class RecentRecordsCard extends StatelessWidget {
             'LAST RECORDS',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 15,
+              fontSize: 16,
             ),
           ),
           TextButton(
@@ -84,12 +80,17 @@ class RecentRecordsCard extends StatelessWidget {
                 ),
               );
             },
-            child: const Text(
-              'SHOW MORE',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-              ),
+            child: const Row(
+              children: [
+                Text(
+                  'SHOW MORE',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+                Icon(Icons.chevron_right, size: 20),
+              ],
             ),
           ),
         ],

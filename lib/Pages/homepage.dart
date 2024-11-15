@@ -2,7 +2,8 @@ import 'package:finance_apk/Pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import '../Components/recent_records_card.dart';
+import '../Components/Cards/expenses_card.dart';
+import '../Components/Cards/recent_records_card.dart';
 import '../backend/database_helper.dart';
 import '../backend/accounts.dart';
 import 'add_account_page.dart';
@@ -433,15 +434,9 @@ class HomePageState extends State<HomePage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    RecentRecordsCard(),
+                    ExpensesAnalyticsCard(),
                     SizedBox(height: 10),
-                    Card(
-                      elevation: 3,
-                      child: SizedBox(
-                        height: 220,
-                        child: Center(child: Text("DEMO CARD 2")),
-                      ),
-                    ),
+                    RecentRecordsCard(),
                     SizedBox(height: 10),
                     Card(
                       elevation: 3,

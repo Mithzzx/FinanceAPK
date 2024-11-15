@@ -81,6 +81,10 @@ class _RecordsPageState extends State<RecordsPage> {
 
   Widget _buildRecordTile(Record record) {
     final category = categories[record.categoryId];
+    final amountText = record.amount < 0
+        ? '-\$${record.amount.abs().toStringAsFixed(2)}'
+        : '\$${record.amount.toStringAsFixed(2)}';
+
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8.0),
@@ -111,7 +115,7 @@ class _RecordsPageState extends State<RecordsPage> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
-            '\$${record.amount.toStringAsFixed(2)}',
+            amountText,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           Text(
