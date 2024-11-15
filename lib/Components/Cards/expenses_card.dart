@@ -145,14 +145,14 @@ class _ExpensesAnalyticsCardState extends State<ExpensesAnalyticsCard> {
 
                 // Chart Section
                 SizedBox(
-                  height: 200,
+                  height: 220,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
                       PieChart(
                         PieChartData(
                           sections: sections,
-                          centerSpaceRadius: 60,
+                          centerSpaceRadius: 80,
                           sectionsSpace: 2,
                         ),
                       ),
