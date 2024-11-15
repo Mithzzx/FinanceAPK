@@ -20,12 +20,11 @@
 - **No Ads**: Enjoy a completely ad-free experience.
 
 ## Screenshots
-
-![Screenshot 1]![IMG_5930](https://github.com/user-attachments/assets/36de1e94-b534-4670-a5ca-afb9d7befac9)
-![Screenshot 2]![IMG_5940](https://github.com/user-attachments/assets/5dd7e7b6-88b2-4b03-92ff-1afad1f55486)
-![Screenshot 3]![IMG_5939](https://github.com/user-attachments/assets/f34a42d1-3d1b-48bc-890e-38596cdc6e22)
-![Screenshot 4]![IMG_5933](https://github.com/user-attachments/assets/7befd912-eb35-4478-bdc2-a7bcba339e16)
-![Screenshot 5]![IMG_5935](https://github.com/user-attachments/assets/a2360d01-866c-4380-8dab-b3cb6e9b9ba4)
+<img src="https://github.com/user-attachments/assets/36de1e94-b534-4670-a5ca-afb9d7befac9" alt="Image description" style="width:190px; height:auto;"/>
+<img src="https://github.com/user-attachments/assets/dfb8acb2-8611-4652-b25a-fadfa5a08fae" alt="Image description" style="width:190px; height:auto;"/>
+<img src="https://github.com/user-attachments/assets/5dd7e7b6-88b2-4b03-92ff-1afad1f55486" alt="Image description" style="width:190px; height:auto;"/>
+<img src="https://github.com/user-attachments/assets/f34a42d1-3d1b-48bc-890e-38596cdc6e22" alt="Image description" style="width:190px; height:auto;"/>
+<img src="https://github.com/user-attachments/assets/18baf23b-c545-4431-a69f-669fb0e4e6d3" alt="Image description" style="width:190px; height:auto;"/>
 
 ## Installation
 
