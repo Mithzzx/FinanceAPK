@@ -44,6 +44,7 @@ dependencies:
   flutter_colorpicker: ^1.1.0
   flutter_iconpicker: ^4.0.1
   fl_chart: ^0.69.0
+  syncfusion_flutter_charts: ^27.2.2
 
 
 

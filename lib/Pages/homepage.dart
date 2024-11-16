@@ -2,10 +2,12 @@ import 'package:finance_apk/Pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import '../Components/Cards/balance_graph_card.dart';
 import '../Components/Cards/expenses_card.dart';
 import '../Components/Cards/recent_records_card.dart';
 import '../backend/database_helper.dart';
 import '../backend/accounts.dart';
+import 'Planning/account_details_page.dart';
 import 'add_account_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -39,74 +41,84 @@ class HomePageState extends State<HomePage> {
     }
 
     Widget slidingAccountsCard(Account account) {
-      return Card(
-        elevation: 3,
-        child: Stack(
-          children: [
-            Container(
-              height: 90,
-              width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 16,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                  colors: [
-                    account.color.withOpacity(0.7),
-                    account.color,
-                    account.color.withOpacity(1.0),
+      return InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AccountDetailsPage(account: account),
+            ),
+          );
+        },
+        child: Card(
+          elevation: 3,
+          child: Stack(
+            children: [
+              Container(
+                height: 90,
+                width: ((MediaQuery.of(context).size.width - 2 * slidingAccountsPadding) / 2) - 16,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    colors: [
+                      account.color.withOpacity(0.7),
+                      account.color,
+                      account.color.withOpacity(1.0),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.blue,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          account.accountType.icon,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        Text(
+                          account.name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Text(
+                          account.balance.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          account.currency,
+                          style: const TextStyle(
+                            color: Color.fromARGB(150, 255, 255, 255),
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.blue,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        account.accountType.icon,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      Text(
-                        account.name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Text(
-                        account.balance.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        account.currency,
-                        style: const TextStyle(
-                          color: Color.fromARGB(150, 255, 255, 255),
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       );
     }
@@ -429,24 +441,18 @@ class HomePageState extends State<HomePage> {
                 ),
               ), // Dot Indicator
               const SizedBox(height: 10),
-              const Padding(
-                padding: EdgeInsets.only(left: 10, right: 10),
+              Padding(
+                padding: const EdgeInsets.only(left: 10, right: 10),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ExpensesAnalyticsCard(),
-                    SizedBox(height: 10),
-                    RecentRecordsCard(),
-                    SizedBox(height: 10),
-                    Card(
-                      elevation: 3,
-                      child: SizedBox(
-                        height: 220,
-                        child: Center(child: Text("DEMO CARD 3")),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Card(
+                    const ExpensesAnalyticsCard(),
+                    const SizedBox(height: 10),
+                    const RecentRecordsCard(),
+                    const SizedBox(height: 10),
+                    AccountBalanceGraph(),
+                    const SizedBox(height: 10),
+                    const Card(
                       elevation: 3,
                       child: SizedBox(
                         height: 220,

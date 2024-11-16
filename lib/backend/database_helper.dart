@@ -113,6 +113,15 @@ class DatabaseHelper {
         return List.generate(maps.length, (i) => Record.fromMap(maps[i]));
     }
 
+    Future<void> deleteRecord(int? recordId) async {
+        final db = await database;
+        await db.delete(
+            'Records',
+            where: 'id = ?',
+            whereArgs: [recordId],
+        );
+    }
+
 // Goal operations
     Future<void> insertGoal(Goal goal) async {
         final db = await database;
@@ -172,6 +181,17 @@ class FinanceState extends ChangeNotifier {
     Future<void> addRecord(Record record) async {
         await _db.insertRecord(record);
         await loadData();
+    }
+
+    Future<void> deleteRecord(int? recordId) async {
+        // Delete the record from the database
+        await _db.deleteRecord(recordId);
+
+        // Remove the record from the local list
+        _records.removeWhere((record) => record.id == recordId);
+
+        // Notify listeners to update the UI
+        notifyListeners();
     }
 
     Future<void> addAccount(Account account) async {
