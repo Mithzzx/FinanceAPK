@@ -85,49 +85,70 @@ class _RecordsPageState extends State<RecordsPage> {
         ? '-\$${record.amount.abs().toStringAsFixed(2)}'
         : '\$${record.amount.toStringAsFixed(2)}';
 
-    return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          color: category.color,
-          borderRadius: BorderRadius.circular(8.0),
+    return Dismissible(
+      key: Key(record.id.toString()),
+      direction: DismissDirection.endToStart,
+      onDismissed: (direction) async {
+        if (record.id != null) {
+          await Provider.of<FinanceState>(context, listen: false).deleteRecord(record.id!);
+          setState(() {
+            Provider.of<FinanceState>(context, listen: false).records.remove(record);
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Record deleted')),
+          );
+        }
+      },
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            color: category.color,
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: IconTheme(
+            data: const IconThemeData(color: Colors.white),
+            child: category.icon,
+          ),
         ),
-        child: IconTheme(
-          data: const IconThemeData(color: Colors.white),
-          child: category.icon,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              category.name,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            Text(
+              record.accountName,
+              style: const TextStyle(color: Colors.grey, fontSize: 14),
+            ),
+          ],
         ),
-      ),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            category.name,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              amountText,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            Text(
+              '${record.dateTime.hour.toString().padLeft(2, '0')}:${record.dateTime.minute.toString().padLeft(2, '0')}',
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RecordDetailsPage(record: record),
           ),
-          Text(
-            record.accountName,
-            style: const TextStyle(color: Colors.grey, fontSize: 14),
-          ),
-        ],
-      ),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            amountText,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          Text(
-            '${record.dateTime.hour.toString().padLeft(2, '0')}:${record.dateTime.minute.toString().padLeft(2, '0')}',
-            style: const TextStyle(color: Colors.grey),
-          ),
-        ],
-      ),
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RecordDetailsPage(record: record),
         ),
       ),
     );
