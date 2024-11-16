@@ -175,22 +175,21 @@ class FinanceState extends ChangeNotifier {
         _records = await _db.getRecords();
         _goals = await _db.getGoals();
         _budgets = await _db.getBudgets();
+        await _updateAllBudgetSpentAmounts();
         notifyListeners();
     }
 
     Future<void> addRecord(Record record) async {
         await _db.insertRecord(record);
-        await loadData();
+        _records.add(record);
+        await _updateAllBudgetSpentAmounts();
+        notifyListeners();
     }
 
     Future<void> deleteRecord(int? recordId) async {
-        // Delete the record from the database
         await _db.deleteRecord(recordId);
-
-        // Remove the record from the local list
         _records.removeWhere((record) => record.id == recordId);
-
-        // Notify listeners to update the UI
+        await _updateAllBudgetSpentAmounts();
         notifyListeners();
     }
 
@@ -247,6 +246,28 @@ class FinanceState extends ChangeNotifier {
     Future<void> addBudget(Budget budget) async {
         await _db.insertBudget(budget);
         await loadData();
+    }
+
+    double _calculateBudgetSpentAmount(Budget budget, List<Record> records) {
+        return records
+            .where((record) => budget.matchesRecord(record))
+            .fold(0.0, (sum, record) {
+            if (record.amount < 0) {
+                return sum + record.amount.abs();
+            }
+            return sum;
+        });
+    }
+
+    Future<void> _updateAllBudgetSpentAmounts() async {
+        for (var budget in _budgets) {
+            double spentAmount = _calculateBudgetSpentAmount(budget, _records);
+            if (spentAmount != budget.spentAmount) {
+                await _db.updateBudgetSpentAmount(budget.id!, spentAmount);
+                budget.spentAmount = spentAmount;
+            }
+        }
+        notifyListeners();
     }
 
     Future<void> updateBudgetSpentAmount(int budgetId, double newAmount) async {

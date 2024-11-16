@@ -34,56 +34,66 @@ class _RecordsPageState extends State<RecordsPage> {
     }
   }
 
-  Widget _buildRecordsList(List<Record> records) {
-    records.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+Widget _buildRecordsList(List<Record> records) {
+  records.sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
-    // Group records by day
-    Map<String, List<Record>> groupedRecords = {};
-    for (var record in records) {
-      String dateKey = DateFormat('yyyy-MM-dd').format(record.dateTime);
-      groupedRecords.putIfAbsent(dateKey, () => []).add(record);
-    }
+  // Group records by day
+  Map<String, List<Record>> groupedRecords = {};
+  for (var record in records) {
+    String dateKey = DateFormat('yyyy-MM-dd').format(record.dateTime);
+    groupedRecords.putIfAbsent(dateKey, () => []).add(record);
+  }
 
-    return RefreshIndicator(
-      onRefresh: _loadRecords,
-      child: ListView.builder(
-        itemCount: groupedRecords.length,
-        itemBuilder: (context, index) {
-          String dateKey = groupedRecords.keys.elementAt(index);
-          List<Record> dayRecords = groupedRecords[dateKey]!;
-          DateTime date = DateTime.parse(dateKey);
+  return RefreshIndicator(
+    onRefresh: _loadRecords,
+    child: ListView.builder(
+      itemCount: groupedRecords.length,
+      itemBuilder: (context, index) {
+        String dateKey = groupedRecords.keys.elementAt(index);
+        List<Record> dayRecords = groupedRecords[dateKey]!;
+        DateTime date = DateTime.parse(dateKey);
 
-          String formattedDate = DateFormat('dd MMM').format(date).toUpperCase();
-          if (date.year != DateTime.now().year) {
-            formattedDate += ' ${date.year}';
-          }
+        String formattedDate = DateFormat('dd MMM').format(date).toUpperCase();
+        if (date.year != DateTime.now().year) {
+          formattedDate += ' ${date.year}';
+        }
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 15, top: 10, bottom: 0),
-                child: Text(
-                  formattedDate,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (index > 0) const SizedBox(height: 4), // Add space between days
+            Padding(
+              padding: const EdgeInsets.only(left: 15, top: 10, bottom: 0),
+              child: Text(
+                formattedDate,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
                 ),
               ),
-              ...dayRecords.map((record) => _buildRecordTile(record)),
-            ],
-          );
-        },
-      ),
-    );
-  }
+            ),
+            ...dayRecords.map((record) => Column(
+              children: [
+                _buildRecordTile(record),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Divider(thickness: 0.3,height: 4,),
+                ), // Add divider between tiles
+              ],
+            )),
+          ],
+        );
+      },
+    ),
+  );
+}
 
   Widget _buildRecordTile(Record record) {
     final category = categories[record.categoryId];
     final amountText = record.amount < 0
         ? '-\$${record.amount.abs().toStringAsFixed(2)}'
-        : '\$${record.amount.toStringAsFixed(2)}';
+        : '+\$${record.amount.toStringAsFixed(2)}';
+    final amountColor = record.amount < 0 ? Colors.red : Colors.green;
 
     return Dismissible(
       key: Key(record.id.toString()),
@@ -136,7 +146,7 @@ class _RecordsPageState extends State<RecordsPage> {
           children: [
             Text(
               amountText,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: amountColor),
             ),
             Text(
               '${record.dateTime.hour.toString().padLeft(2, '0')}:${record.dateTime.minute.toString().padLeft(2, '0')}',

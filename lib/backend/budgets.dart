@@ -1,3 +1,5 @@
+import 'records.dart';
+
 class Budget {
   final int? id;
   final String name;
@@ -8,6 +10,45 @@ class Budget {
   final String accountName;
   final bool overspendAlert;
   final bool alertAt75Percent;
+
+  // Add getters for start and end dates based on period
+  DateTime get startDate {
+    final now = DateTime.now();
+    switch (period) {
+      case 'weekly':
+      // Start of current week (Sunday)
+        return DateTime(now.year, now.month, now.day - now.weekday);
+      case 'monthly':
+      // Start of current month
+        return DateTime(now.year, now.month, 1);
+      case 'yearly':
+      // Start of current year
+        return DateTime(now.year, 1, 1);
+      case 'onetime':
+      default:
+      // For one-time budgets, no specific start date
+        return DateTime(1970);
+    }
+  }
+
+  DateTime get endDate {
+    final now = DateTime.now();
+    switch (period) {
+      case 'weekly':
+      // End of current week (Saturday)
+        return DateTime(now.year, now.month, now.day - now.weekday + 6, 23, 59, 59);
+      case 'monthly':
+      // End of current month
+        return DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+      case 'yearly':
+      // End of current year
+        return DateTime(now.year, 12, 31, 23, 59, 59);
+      case 'onetime':
+      default:
+      // For one-time budgets, far future date
+        return DateTime(9999);
+    }
+  }
 
   Budget({
     this.id,
@@ -28,7 +69,7 @@ class Budget {
       'totalAmount': totalAmount,
       'spentAmount': spentAmount,
       'period': period,
-      'categoryIds': categoryIds.join(','), // Store as comma-separated string
+      'categoryIds': categoryIds.join(','),
       'accountName': accountName,
       'overspendAlert': overspendAlert ? 1 : 0,
       'alertAt75Percent': alertAt75Percent ? 1 : 0,
@@ -47,5 +88,13 @@ class Budget {
       overspendAlert: map['overspendAlert'] == 1,
       alertAt75Percent: map['alertAt75Percent'] == 1,
     );
+  }
+
+  // Method to check if a record falls within this budget's criteria
+  bool matchesRecord(Record record) {
+    return categoryIds.contains(record.categoryId) &&
+        accountName == record.accountName &&
+        record.dateTime.isAfter(startDate) &&
+        record.dateTime.isBefore(endDate);
   }
 }
