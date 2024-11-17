@@ -10,53 +10,57 @@ class RecentRecordsCard extends StatelessWidget {
   const RecentRecordsCard({super.key});
 
   Widget _buildRecordTile(Record record) {
-    final category = categories[record.categoryId];
-    final amountText = record.amount < 0
-        ? '-\$${record.amount.abs().toStringAsFixed(2)}'
-        : '\$${record.amount.toStringAsFixed(2)}';
-    final formattedDate = DateFormat('dd,MMM').format(record.dateTime);
+  final category = categories[record.categoryId];
+  final isPositive = record.amount >= 0;
+  final amountText = isPositive
+      ? '+\$${record.amount.toStringAsFixed(2)}'
+      : '-\$${record.amount.abs().toStringAsFixed(2)}';
+  final formattedDate = DateFormat('dd,MMM').format(record.dateTime);
 
-    return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          color: category.color,
-          borderRadius: BorderRadius.circular(8.0),
+  return ListTile(
+    leading: Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: category.color,
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: IconTheme(
+        data: const IconThemeData(color: Colors.white),
+        child: category.icon,
+      ),
+    ),
+    title: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          category.name,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        child: IconTheme(
-          data: const IconThemeData(color: Colors.white),
-          child: category.icon,
+        Text(
+          record.accountName,
+          style: const TextStyle(color: Colors.grey, fontSize: 14),
         ),
-      ),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            category.name,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      ],
+    ),
+    trailing: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          amountText,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
           ),
-          Text(
-            record.accountName,
-            style: const TextStyle(color: Colors.grey, fontSize: 14),
-          ),
-        ],
-      ),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            amountText,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          Text(
-            '$formattedDate ${record.dateTime.hour.toString().padLeft(2, '0')}:${record.dateTime.minute.toString().padLeft(2, '0')}',
-            style: const TextStyle(color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+        Text(
+          '$formattedDate ${record.dateTime.hour.toString().padLeft(2, '0')}:${record.dateTime.minute.toString().padLeft(2, '0')}',
+          style: const TextStyle(color: Colors.grey),
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildHeader(BuildContext context) {
     return Padding(

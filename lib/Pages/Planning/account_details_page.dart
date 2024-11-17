@@ -83,16 +83,14 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              _buildTimeFilter(),
-              _buildChart(),
-              _buildTransactionsList(),
-            ],
-          ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            _buildTimeFilter(),
+            _buildChart(),
+            _buildTransactionsList(),
+          ],
         ),
       ),
     );
@@ -413,9 +411,9 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8,horizontal: 12),
+                padding: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
                 child: Text(
-                  'Transactions',
+                  'Records',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
