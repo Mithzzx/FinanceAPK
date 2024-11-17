@@ -20,9 +20,11 @@
 - **No Ads**: Enjoy a completely ad-free experience.
 
 ## Screenshots
-<img src="https://github.com/user-attachments/assets/36de1e94-b534-4670-a5ca-afb9d7befac9" alt="Image description" style="width:190px; height:auto;"/>
-<img src="https://github.com/user-attachments/assets/dfb8acb2-8611-4652-b25a-fadfa5a08fae" alt="Image description" style="width:190px; height:auto;"/>
-<img src="https://github.com/user-attachments/assets/5dd7e7b6-88b2-4b03-92ff-1afad1f55486" alt="Image description" style="width:190px; height:auto;"/>
+<img src="https://github.com/user-attachments/assets/6e726c0b-a513-47e4-8474-31c9711a9d28" alt="Image description" style="width:190px; height:auto;"/>
+<img src="https://github.com/user-attachments/assets/0e62af56-de22-4afc-8978-8e4510e58f9e" alt="Image description" style="width:190px; height:auto;"/>
+<img src="https://github.com/user-attachments/assets/00d2d391-9711-4150-8e31-96939715b924" alt="Image description" style="width:190px; height:auto;"/>
+<img src="https://github.com/user-attachments/assets/18175350-8fb7-4930-bf31-17db496c805d" alt="Image description" style="width:190px; height:auto;"/>
+<img src="https://github.com/user-attachments/assets/a022b9be-6ab9-4cb7-b9aa-314a28501c2a" alt="Image description" style="width:190px; height:auto;"/>
 <img src="https://github.com/user-attachments/assets/f34a42d1-3d1b-48bc-890e-38596cdc6e22" alt="Image description" style="width:190px; height:auto;"/>
 <img src="https://github.com/user-attachments/assets/18baf23b-c545-4431-a69f-669fb0e4e6d3" alt="Image description" style="width:190px; height:auto;"/>
 
