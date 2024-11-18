@@ -146,6 +146,25 @@ class DatabaseHelper {
         return List.generate(maps.length, (i) => Budget.fromMap(maps[i]));
     }
 
+    Future<void> deleteBudget(int budgetId) async {
+        final db = await database;
+        await db.delete(
+            'Budgets',
+            where: 'id = ?',
+            whereArgs: [budgetId],
+        );
+    }
+
+    Future<void> updateBudget(Budget budget) async {
+        final db = await database;
+        await db.update(
+            'Budgets',
+            budget.toMap(),
+            where: 'id = ?',
+            whereArgs: [budget.id],
+        );
+    }
+
     Future<void> updateBudgetSpentAmount(int budgetId, double newAmount) async {
         final db = await database;
         await db.update(
@@ -187,9 +206,40 @@ class FinanceState extends ChangeNotifier {
     }
 
     Future<void> deleteRecord(int? recordId) async {
+        if (recordId == null) return;
+
+        // First, find the record to get its details before deletion
+        Record? recordToDelete = _records.firstWhere((record) => record.id == recordId);
+
         await _db.deleteRecord(recordId);
         _records.removeWhere((record) => record.id == recordId);
+
+        // Adjust the account balance based on the deleted record's amount
+        for (var account in _accounts) {
+            if (account.name == recordToDelete.accountName) {
+                final updatedBalance = account.balance - recordToDelete.amount;
+                final updatedAccount = Account(
+                    name: account.name,
+                    currency: account.currency,
+                    balance: updatedBalance,
+                    accountNumber: account.accountNumber,
+                    accountType: account.accountType,
+                    color: account.color
+                );
+
+                final db = await _db.database;
+                await db.update(
+                    'Accounts',
+                    updatedAccount.toMap(),
+                    where: 'name = ?',
+                    whereArgs: [account.name]
+                );
+                break;
+            }
+        }
+
         await _updateAllBudgetSpentAmounts();
+        await loadData();
         notifyListeners();
     }
 
@@ -246,6 +296,23 @@ class FinanceState extends ChangeNotifier {
     Future<void> addBudget(Budget budget) async {
         await _db.insertBudget(budget);
         await loadData();
+    }
+
+    Future<void> deleteBudget(int budgetId) async {
+        // Implement the logic to delete the budget from the database
+        await DatabaseHelper().deleteBudget(budgetId);
+        _budgets.removeWhere((budget) => budget.id == budgetId);
+        notifyListeners();
+    }
+
+    Future<void> updateBudget(Budget budget) async {
+        // Implement the logic to update the budget in the database
+        await DatabaseHelper().updateBudget(budget);
+        int index = _budgets.indexWhere((b) => b.id == budget.id);
+        if (index != -1) {
+            _budgets[index] = budget;
+            notifyListeners();
+        }
     }
 
     double _calculateBudgetSpentAmount(Budget budget, List<Record> records) {

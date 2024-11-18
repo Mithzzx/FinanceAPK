@@ -6,6 +6,8 @@ import '../../backend/database_helper.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 
+import 'budgets_edit.dart';
+
 class BudgetViewPage extends StatefulWidget {
   final Budget budget;
 
@@ -21,6 +23,7 @@ class _BudgetViewPageState extends State<BudgetViewPage> with SingleTickerProvid
   double _dailyAverage = 0;
   double _dailyRecommended = 0;
   List<FlSpot> _spendingTrend = [];
+  List<FlSpot> _forecastTrend = [];
 
   @override
   void initState() {
@@ -100,23 +103,6 @@ class _BudgetViewPageState extends State<BudgetViewPage> with SingleTickerProvid
     }
   }
 
-  void _generateTrendData() {
-    final spendingByDay = <DateTime, double>{};
-
-    for (var record in _relevantRecords) {
-      final date = DateTime(record.dateTime.year, record.dateTime.month, record.dateTime.day);
-      spendingByDay[date] = (spendingByDay[date] ?? 0) + record.amount;
-    }
-
-    _spendingTrend = spendingByDay.entries
-        .map((e) => FlSpot(
-      e.key.millisecondsSinceEpoch.toDouble(),
-      e.value,
-    ))
-        .toList()
-      ..sort((a, b) => a.x.compareTo(b.x));
-  }
-
   @override
   Widget build(BuildContext context) {
     final remainingPercentage = ((widget.budget.totalAmount - widget.budget.spentAmount) /
@@ -129,7 +115,12 @@ class _BudgetViewPageState extends State<BudgetViewPage> with SingleTickerProvid
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () {
-              // TODO: Implement edit functionality
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditBudgetPage(budget: widget.budget)
+                ),
+              );
             },
           ),
         ],
@@ -258,68 +249,93 @@ class _BudgetViewPageState extends State<BudgetViewPage> with SingleTickerProvid
     );
   }
 
+  void _generateTrendData() {
+    final spendingByDay = <DateTime, double>{};
+    final forecastByDay = <DateTime, double>{};
+
+    for (var record in _relevantRecords) {
+      final date = DateTime(record.dateTime.year, record.dateTime.month, record.dateTime.day);
+      spendingByDay[date] = (spendingByDay[date] ?? 0) + record.amount;
+    }
+
+    final now = DateTime.now();
+    final daysInPeriod = _getDaysInPeriod();
+    final daysElapsed = _getDaysElapsed();
+    final dailyAverage = spendingByDay.values.fold(0.0, (sum, amount) => sum + amount) / daysElapsed;
+
+    for (int i = 0; i < daysInPeriod; i++) {
+      final date = now.subtract(Duration(days: daysInPeriod - i - 1));
+      forecastByDay[date] = dailyAverage * (i + 1);
+    }
+
+    _spendingTrend = spendingByDay.entries
+        .map((e) => FlSpot(
+      e.key.millisecondsSinceEpoch.toDouble(),
+      e.value,
+    ))
+        .toList()
+      ..sort((a, b) => a.x.compareTo(b.x));
+
+    _forecastTrend = forecastByDay.entries
+        .map((e) => FlSpot(
+      e.key.millisecondsSinceEpoch.toDouble(),
+      e.value,
+    ))
+        .toList()
+      ..sort((a, b) => a.x.compareTo(b.x));
+  }
+
   Widget _buildTrendGraph() {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Trend'),
-            SizedBox(
-              height: 200,
-              child: LineChart(
-                LineChartData(
-                  gridData: const FlGridData(show: false),
-                  titlesData: FlTitlesData(
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (value, meta) {
-                          final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+        child: SizedBox(
+          height: 200,
+          child: LineChart(
+            LineChartData(
+              gridData: const FlGridData(show: false),
+              titlesData: FlTitlesData(
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                      switch (widget.budget.period) {
+                        case 'weekly':
+                          return Text(DateFormat('EEE').format(date));
+                        case 'monthly':
                           return Text(DateFormat('MM/dd').format(date));
-                        },
-                      ),
-                    ),
+                        case 'yearly':
+                          return Text(DateFormat('MMM').format(date));
+                        default:
+                          return Text(DateFormat('MM/dd').format(date));
+                      }
+                    },
                   ),
-                  borderData: FlBorderData(show: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: _spendingTrend,
-                      isCurved: true,
-                      color: Colors.green,
-                      dotData: const FlDotData(show: true),
-                    ),
-                    // Budget line
-                    LineChartBarData(
-                      spots: [
-                        FlSpot(DateTime.now().subtract(const Duration(days: 7))
-                            .millisecondsSinceEpoch.toDouble(), widget.budget.totalAmount),
-                        FlSpot(DateTime.now().millisecondsSinceEpoch.toDouble(),
-                            widget.budget.totalAmount),
-                      ],
-                      color: Colors.white,
-                      dotData: const FlDotData(show: false),
-                      dashArray: [5, 5],
-                    ),
-                  ],
+                ),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
                 ),
               ),
+              borderData: FlBorderData(show: false),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: _spendingTrend,
+                  isCurved: true,
+                  color: Colors.green,
+                  dotData: const FlDotData(show: false),
+                ),
+                LineChartBarData(
+                  spots: _forecastTrend,
+                  isCurved: true,
+                  color: Colors.blue,
+                  isStrokeCapRound: true,
+                  dashArray: [5, 5],
+                  dotData: const FlDotData(show: false),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildLegendItem('Budget', Colors.white),
-                  const SizedBox(width: 16),
-                  _buildLegendItem('Spent', Colors.green),
-                  const SizedBox(width: 16),
-                  _buildLegendItem('Forecast spent', Colors.blue),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
