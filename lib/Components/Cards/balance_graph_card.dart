@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
+import '../../Pages/Stats/balance_stats.dart';
 import '../../Pages/theme_provider.dart';
 import '../../backend/database_helper.dart';
 
@@ -117,7 +118,12 @@ class _AccountBalanceGraphState extends State<AccountBalanceGraph> {
                     ),
                     TextButton(
                       onPressed: () {
-                        // Navigate to detailed view
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const BalanceStatsPage(),
+                          ),
+                        );
                       },
                       child: const Row(
                         children: [
