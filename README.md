@@ -1,10 +1,5 @@
-`README.md`
-
----
-
-# Finance Manager App
-
-![FinFree Logo](link-to-your-logo.png)
+# Fiware
+<img src="https://github.com/user-attachments/assets/dc508a8e-17ed-4254-867e-4dc497443a76" alt="Fiware Logo" style="width:150px; height:auto;"/>
 
 ## Overview
 
