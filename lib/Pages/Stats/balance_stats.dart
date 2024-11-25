@@ -19,80 +19,83 @@ class _BalanceStatsPageState extends State<BalanceStatsPage> {
   final List<String> periods = ['1W', '1M', '3M', '1Y', 'ALL'];
 
   List<FlSpot> _getChartData(List<Record> records, List<Account> accounts, String period) {
-    final now = DateTime.now();
-    DateTime startDate;
+  final now = DateTime.now();
+  DateTime startDate;
 
-    // Determine start date based on selected period
-    switch (period) {
-      case '1W':
-        startDate = now.subtract(const Duration(days: 7));
-      case '1M':
-        startDate = DateTime(now.year, now.month - 1, now.day);
-      case '3M':
-        startDate = DateTime(now.year, now.month - 3, now.day);
-      case '1Y':
-        startDate = DateTime(now.year - 1, now.month, now.day);
-      case 'ALL':
-        startDate = DateTime(2000); // Far past date to include all records
-      default:
-        startDate = now.subtract(const Duration(days: 7));
-    }
-
-    // Get current total balance from accounts
-    final currentBalance = accounts.fold(0.0, (sum, account) => sum + account.balance);
-
-    // Sort records by date in ascending order
-    final relevantRecords = records
-        .where((record) => record.dateTime.isAfter(startDate))
-        .toList()
-      ..sort((a, b) => b.dateTime.compareTo(a.dateTime));
-
-    // Create a map of daily balances starting from current balance
-    final Map<DateTime, double> dailyBalances = {};
-    var runningBalance = currentBalance;
-
-    // Work backwards from current balance using records
-    for (var record in relevantRecords) {
-      final date = DateTime(
-        record.dateTime.year,
-        record.dateTime.month,
-        record.dateTime.day,
-      );
-
-      // Subtract the record amount since we're going backwards in time
-      runningBalance -= record.amount;
-
-      // Store the running balance for this date
-      dailyBalances[date] = runningBalance;
-    }
-
-    // Convert to list of spots for the chart
-    final List<FlSpot> spots = [];
-    var daysToShow = now.difference(startDate).inDays;
-    runningBalance = currentBalance;
-
-    // Create spots for each day in the period
-    for (var i = 0; i <= daysToShow; i++) {
-      final date = DateTime(
-        now.year,
-        now.month,
-        now.day - (daysToShow - i),
-      );
-
-      // If we have a balance for this date, use it
-      if (dailyBalances.containsKey(date)) {
-        runningBalance = dailyBalances[date]!;
-      }
-
-      spots.add(FlSpot(
-        i.toDouble(),
-        runningBalance,
-      ));
-    }
-
-    return spots;
+  // Determine start date based on selected period
+  switch (period) {
+    case '1W':
+      startDate = now.subtract(const Duration(days: 7));
+      break;
+    case '1M':
+      startDate = DateTime(now.year, now.month - 1, now.day);
+      break;
+    case '3M':
+      startDate = DateTime(now.year, now.month - 3, now.day);
+      break;
+    case '1Y':
+      startDate = DateTime(now.year - 1, now.month, now.day);
+      break;
+    case 'ALL':
+      startDate = DateTime(2000); // Far past date to include all records
+      break;
+    default:
+      startDate = now.subtract(const Duration(days: 7));
   }
-  
+
+  // Get current total balance from accounts
+  final currentBalance = accounts.fold(0.0, (sum, account) => sum + account.balance);
+
+  // Sort records by date in descending order
+  final relevantRecords = records
+      .where((record) => record.dateTime.isAfter(startDate))
+      .toList()
+    ..sort((a, b) => b.dateTime.compareTo(a.dateTime));
+
+  // Create a map of daily balances starting from current balance
+  final Map<DateTime, double> dailyBalances = {};
+  var runningBalance = currentBalance;
+
+  // Add today's balance
+  dailyBalances[now] = currentBalance;
+
+  // Work backwards from current balance using records
+  for (var record in relevantRecords) {
+    final date = DateTime(
+      record.dateTime.year,
+      record.dateTime.month,
+      record.dateTime.day,
+    );
+
+    // Subtract the record amount since we're going backwards in time
+    runningBalance -= record.amount;
+
+    // Store the running balance for this date
+    dailyBalances[date] = runningBalance;
+  }
+
+  // Convert to list of spots for the chart
+  final List<FlSpot> spots = [];
+  var daysToShow = now.difference(startDate).inDays;
+
+  // Create spots for each day in the period
+  for (var i = 0; i <= daysToShow; i++) {
+    final date = now.subtract(Duration(days: i));
+
+    // If we have a balance for this date, use it
+    if (dailyBalances.containsKey(date)) {
+      runningBalance = dailyBalances[date]!;
+    }
+
+    spots.add(FlSpot(
+      (daysToShow - i).toDouble(),
+      runningBalance,
+    ));
+  }
+
+  return spots;
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
