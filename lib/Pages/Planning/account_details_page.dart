@@ -38,31 +38,115 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
     setState(() {});
   }
 
-  List<FlSpot> _getChartData() {
-    if (accountRecords.isEmpty) return [const FlSpot(0, 0)];
-
-    Map<DateTime, double> dailyTotals = {};
-    double runningBalance = widget.account.balance;
-
-    // Sort records by date in descending order
-    accountRecords.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-
-    // Calculate running balance for each day
-    for (var record in accountRecords) {
-      DateTime date = DateTime(record.dateTime.year, record.dateTime.month, record.dateTime.day);
-      dailyTotals[date] = runningBalance;
-      runningBalance -= record.amount;
+  List<FlSpot> _calculateSpots() {
+    if (accountRecords.isEmpty) {
+      int points = numberOfPoints();
+      return List.generate(points, (i) => FlSpot(i.toDouble(), widget.account.balance));
     }
 
-    // Convert to list of spots
-    List<FlSpot> spots = dailyTotals.entries.map((entry) {
-      return FlSpot(
-        entry.key.millisecondsSinceEpoch.toDouble(),
-        entry.value,
-      );
-    }).toList();
+    accountRecords.sort((a, b) => a.dateTime.compareTo(b.dateTime));
 
-    return spots.reversed.toList();
+    DateTime endDate = DateTime.now();
+    DateTime startDate;
+
+    switch (selectedTimeFilter) {
+      case 'Month':
+        startDate = DateTime(endDate.year, endDate.month - 5, 1);
+        break;
+      case 'Week':
+        startDate = endDate.subtract(const Duration(days: 42));
+        break;
+      default: // Day
+        startDate = endDate.subtract(const Duration(days: 7)); // Changed from 30 to 7
+    }
+
+    Map<DateTime, double> dailyBalances = {};
+    double runningBalance = 0; // Start from 0 and build up to current balance
+
+    // Get the earliest relevant date
+    var relevantRecords = accountRecords.where((record) =>
+    !record.dateTime.isBefore(startDate) &&
+        !record.dateTime.isAfter(endDate)
+    ).toList();
+
+    // Add all transactions to get to current balance
+    for (var record in relevantRecords) {
+      runningBalance += record.amount; // Add the amount (negative amounts will subtract)
+    }
+
+    // Current balance minus all transactions equals starting balance
+    double startingBalance = widget.account.balance - runningBalance;
+    runningBalance = startingBalance;
+
+    // Add today's balance
+    DateTime today = DateTime(endDate.year, endDate.month,
+        selectedTimeFilter == 'Month' ? 1 : endDate.day);
+    dailyBalances[today] = widget.account.balance;
+
+    // Calculate running balance for each day
+    for (var record in relevantRecords) {
+      DateTime recordDate = DateTime(
+          record.dateTime.year,
+          record.dateTime.month,
+          selectedTimeFilter == 'Month' ? 1 : record.dateTime.day
+      );
+
+      runningBalance += record.amount;
+      dailyBalances[recordDate] = runningBalance;
+    }
+
+    // Generate spots for the graph
+    List<FlSpot> spots = [];
+    int points = numberOfPoints();
+
+    for (int i = 0; i < points; i++) {
+      DateTime currentDate;
+      switch (selectedTimeFilter) {
+        case 'Month':
+          currentDate = DateTime(endDate.year, endDate.month - (points - 1 - i), 1);
+          break;
+        case 'Week':
+          currentDate = startDate.add(Duration(days: i));
+          break;
+        default:
+          currentDate = startDate.add(Duration(days: i)); // Changed logic for Day filter
+      }
+
+      double balance;
+      if (dailyBalances.isEmpty) {
+        balance = widget.account.balance;
+      } else {
+        var availableDates = dailyBalances.keys
+            .where((date) => !date.isAfter(currentDate))
+            .toList();
+        if (availableDates.isEmpty) {
+          balance = startingBalance;
+        } else {
+          availableDates.sort((a, b) => b.compareTo(a)); // Sort in descending order
+          balance = dailyBalances[availableDates.first]!;
+        }
+      }
+
+      spots.add(FlSpot(i.toDouble(), balance));
+    }
+
+    // Ensure the last point shows current balance
+    if (spots.isNotEmpty) {
+      spots[spots.length - 1] = FlSpot(spots.last.x, widget.account.balance);
+    }
+
+    return spots;
+  }
+
+  int numberOfPoints() {
+    switch (selectedTimeFilter) {
+      case 'Month':
+        return 6; // 6 months
+      case 'Week':
+        return 42; // 6 weeks
+      default: // Day
+        return 7; // Changed from 30 to 7 days
+    }
   }
 
   @override
@@ -125,117 +209,6 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
         initialIndex: 1, // Default to 'Week'
       ),
     );
-  }
-
-  List<FlSpot> _calculateSpots() {
-    if (accountRecords.isEmpty) {
-      int points = numberOfPoints();
-      return List.generate(points, (i) => FlSpot(i.toDouble(), widget.account.balance));
-    }
-
-    accountRecords.sort((a, b) => a.dateTime.compareTo(b.dateTime));
-
-    DateTime endDate = DateTime.now();
-    DateTime startDate;
-
-    switch (selectedTimeFilter) {
-      case 'Month':
-        startDate = DateTime(endDate.year, endDate.month - 5, 1);
-        break;
-      case 'Week':
-        startDate = endDate.subtract(const Duration(days: 42));
-        break;
-      default: // Day
-        startDate = endDate.subtract(const Duration(days: 30));
-    }
-
-    Map<DateTime, double> dailyBalances = {};
-    double runningBalance = 0; // Start from 0 and build up to current balance
-
-    // Get the earliest relevant date
-    var relevantRecords = accountRecords.where((record) =>
-    !record.dateTime.isBefore(startDate) &&
-        !record.dateTime.isAfter(endDate)
-    ).toList();
-
-    // Add all transactions to get to current balance
-    for (var record in relevantRecords) {
-      runningBalance += record.amount; // Add the amount (negative amounts will subtract)
-    }
-
-    // Current balance minus all transactions equals starting balance
-    double startingBalance = widget.account.balance - runningBalance;
-    runningBalance = startingBalance;
-
-    // Add today's balance
-    DateTime today = DateTime(endDate.year, endDate.month,
-        selectedTimeFilter == 'Month' ? 1 : endDate.day);
-    dailyBalances[today] = widget.account.balance;
-
-    // Calculate running balance for each day
-    for (var record in relevantRecords) {
-      DateTime recordDate = DateTime(
-          record.dateTime.year,
-          record.dateTime.month,
-          selectedTimeFilter == 'Month' ? 1 : record.dateTime.day
-      );
-
-      runningBalance += record.amount;
-      dailyBalances[recordDate] = runningBalance;
-    }
-
-    // Generate spots for the graph
-    List<FlSpot> spots = [];
-    int points = numberOfPoints();
-
-    for (int i = 0; i < points; i++) {
-      DateTime currentDate;
-      switch (selectedTimeFilter) {
-        case 'Month':
-          currentDate = DateTime(endDate.year, endDate.month - (points - 1 - i), 1);
-          break;
-        case 'Week':
-          currentDate = startDate.add(Duration(days: i));
-          break;
-        default:
-          currentDate = startDate.add(Duration(days: i));
-      }
-
-      double balance;
-      if (dailyBalances.isEmpty) {
-        balance = widget.account.balance;
-      } else {
-        var availableDates = dailyBalances.keys
-            .where((date) => !date.isAfter(currentDate))
-            .toList();
-        if (availableDates.isEmpty) {
-          balance = startingBalance;
-        } else {
-          availableDates.sort((a, b) => b.compareTo(a)); // Sort in descending order
-          balance = dailyBalances[availableDates.first]!;
-        }
-      }
-
-      spots.add(FlSpot(i.toDouble(), balance));
-    }
-
-    // Ensure the last point shows current balance
-    if (spots.isNotEmpty) {
-      spots[spots.length - 1] = FlSpot(spots.last.x, widget.account.balance);
-    }
-
-    return spots;
-  }
-
-  int numberOfPoints() {
-    switch (selectedTimeFilter) {
-      case 'Month':
-        return 6; // 6 months
-      case 'Week':
-        return 42; // 6 weeks
-      default: // Day
-        return 30; // 30 days
-    }
   }
 
   Widget _buildChart() {
