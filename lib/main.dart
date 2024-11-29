@@ -102,9 +102,6 @@ class _MainPageState extends State<MainPage> {
                 },
               ),
             );
-            Provider.of<ThemeProvider>(context, listen: false).setTempTheme(
-              ThemeProvider.themes[1],
-            );
           },
           elevation: 0,
           backgroundColor: Colors.green,

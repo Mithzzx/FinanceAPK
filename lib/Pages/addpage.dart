@@ -1,5 +1,6 @@
-import 'package:flutter/cupertino.dart';
+import 'package:appinio_animated_toggle_tab/appinio_animated_toggle_tab.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../backend/database_helper.dart';
 import '../backend/records.dart';
@@ -21,84 +22,19 @@ class AddTransactionPage extends StatefulWidget {
 }
 
 class _AddTransactionPageState extends State<AddTransactionPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _amountController = TextEditingController();
-  final _labelController = TextEditingController();
-  final _notesController = TextEditingController();
-  final _payeeController = TextEditingController();
-
+  final TextEditingController _amountController = TextEditingController();
   String? _selectedAccount;
   Category? _selectedCategory;
   SubCategory? _selectedSubCategory;
-  String _selectedPaymentType = 'Cash';
   DateTime _selectedDate = DateTime.now();
-  TimeOfDay _selectedTime = TimeOfDay.now();
-  int _selectedTransactionType = 0; // 0: Expense, 1: Income, 2: Transfer
-
-  final List<String> _paymentTypes = ['Cash', 'Card', 'Transfer', 'Other'];
+  final PageController _accountPageController = PageController(viewportFraction: 0.85);
 
   @override
   void initState() {
     super.initState();
     _selectedCategory = widget.selectedCategory;
     _selectedSubCategory = widget.selectedSubCategory;
-  }
-
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _labelController.dispose();
-    _notesController.dispose();
-    _payeeController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2025),
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
-  }
-
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: _selectedTime,
-    );
-    if (picked != null && picked != _selectedTime) {
-      setState(() {
-        _selectedTime = picked;
-      });
-    }
-  }
-
-  Future<void> _updateAccountBalance(FinanceState financeState, String accountName, double amount) async {
-    final db = await DatabaseHelper().database;
-    final account = financeState.accounts.firstWhere((acc) => acc.name == accountName);
-
-    double newBalance = account.balance;
-    if (_selectedTransactionType == 0) { // Expense
-      newBalance -= amount.abs();
-    } else if (_selectedTransactionType == 1) { // Income
-      newBalance += amount.abs();
-    }
-    // For transfers, you might want to handle both accounts
-
-    await db.update(
-      'Accounts',
-      {'balance': newBalance},
-      where: 'name = ?',
-      whereArgs: [accountName],
-    );
-
-    await financeState.loadData(); // Refresh the state
+    _amountController.text = '0.00';
   }
 
   void _navigateToCategorySelection() async {
@@ -119,236 +55,194 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   @override
   Widget build(BuildContext context) {
     final financeState = Provider.of<FinanceState>(context);
+    List<bool> _selectedRecordType = [true, false, false]; // Default to 'Income'
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add New Record'),
+        title: const Text('Add Transaction'),
+        elevation: 0,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Transaction Type Selector
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 16.0),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: CupertinoSlidingSegmentedControl<int>(
-                  backgroundColor: Colors.transparent,
-                  thumbColor: Theme.of(context).colorScheme.primary,
-                  groupValue: _selectedTransactionType,
-                  children: const {
-                    0: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text('Expense', style: TextStyle(fontWeight: FontWeight.bold)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 20),
+            // Account Selection with Sliding Cards
+            SizedBox(
+              height: 180,
+              child: PageView.builder(
+                controller: _accountPageController,
+                itemCount: financeState.accounts.length,
+                itemBuilder: (context, index) {
+                  final account = financeState.accounts[index];
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedAccount = account.name;
+                      });
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [account.color.withOpacity(0.8), account.color.withOpacity(0.3)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            account.accountType.icon,
+                            size: 50,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            account.name,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold
+                            ),
+                          ),
+                          Text(
+                            '\$${account.balance.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    1: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text('Income', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    2: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text('Transfer', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                  },
-                  onValueChanged: (value) {
-                    setState(() {
-                      _selectedTransactionType = value!;
-                    });
-                  },
-                ),
-              ),
-
-              TextFormField(
-                controller: _amountController,
-                decoration: InputDecoration(
-                  labelText: 'Amount',
-                  prefixIcon: const Icon(Icons.attach_money),
-                  prefixText: _selectedTransactionType == 0 ? '- ' : '+ ',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an amount';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  return null;
-                },
-              ),
-
-              DropdownButtonFormField<String>(
-                value: _selectedAccount,
-                decoration: const InputDecoration(
-                  labelText: 'Account',
-                  prefixIcon: Icon(Icons.account_balance),
-                ),
-                items: financeState.accounts.map((account) {
-                  return DropdownMenuItem(
-                    value: account.name,
-                    child: Text(account.name),
                   );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedAccount = newValue;
-                  });
                 },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select an account';
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Segment Bar
+            AppinioAnimatedToggleTab(
+              height: 35,
+              tabTexts: const ['Income', 'Expense', 'Transfer'],
+              callback: (int index) {
+                setState(() {
+                  for (int i = 0; i < _selectedRecordType.length; i++) {
+                    _selectedRecordType[i] = i == index;
                   }
-                  return null;
-                },
+                });
+              },
+              width: MediaQuery.of(context).size.width * 0.9,
+              boxDecoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(10),
               ),
-              const SizedBox(height: 16),
-
-              // Category Selection
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: _selectedCategory?.color ?? Colors.grey,
-                    borderRadius: BorderRadius.circular(4.0),
-                  ),
-                  child: IconTheme(
-                    data: const IconThemeData(color: Colors.white),
-                    child: _selectedCategory?.icon ?? const Icon(Icons.category),
-                  ),
-                ),
-                title: Text(_selectedCategory?.name ?? 'Select Category'),
-                subtitle: _selectedSubCategory != null
-                    ? Text(_selectedSubCategory!.name)
-                    : null,
-                trailing: const Icon(Icons.arrow_forward_ios),
-                onTap: _navigateToCategorySelection,
+              animatedBoxDecoration: BoxDecoration(
+                color: Colors.deepPurple,
+                borderRadius: BorderRadius.circular(10),
               ),
-              const SizedBox(height: 16),
+              activeStyle: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              inactiveStyle: const TextStyle(
+                color: Colors.deepPurple,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
 
-              // Date and Time Selection
-              Row(
+            const SizedBox(height: 20),
+
+            // Category Selection
+            GestureDetector(
+              onTap: _navigateToCategorySelection,
+              child: Column(
                 children: [
-                  Expanded(
-                    child: ListTile(
-                      leading: const Icon(Icons.calendar_today),
-                      title: Text(
-                        'Date: ${_selectedDate.toLocal().toString().split(' ')[0]}',
-                      ),
-                      onTap: () => _selectDate(context),
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundColor: _selectedCategory?.color ?? Colors.grey,
+                    child: _selectedCategory?.icon ?? const Icon(Icons.category, color: Colors.white),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _selectedCategory?.name ?? 'Select Category',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Expanded(
-                    child: ListTile(
-                      leading: const Icon(Icons.access_time),
-                      title: Text(
-                        'Time: ${_selectedTime.format(context)}',
+                  if (_selectedSubCategory != null)
+                    Text(
+                      _selectedSubCategory!.name,
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                        fontSize: 14,
                       ),
-                      onTap: () => _selectTime(context),
                     ),
-                  ),
                 ],
               ),
-              const SizedBox(height: 16),
+            ),
 
-              DropdownButtonFormField<String>(
-                value: _selectedPaymentType,
-                decoration: const InputDecoration(
-                  labelText: 'Payment Type',
-                  prefixIcon: Icon(Icons.payment),
+            const SizedBox(height: 20),
+
+            // Amount Input
+            GestureDetector(
+              onTap: () {
+                // Logic to show a number pad or custom input method
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                items: _paymentTypes.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Text(type),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedPaymentType = newValue!;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _labelController,
-                decoration: const InputDecoration(
-                  labelText: 'Label',
-                  prefixIcon: Icon(Icons.label),
+                child: Text(
+                  '\$${_amountController.text}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _payeeController,
-                decoration: const InputDecoration(
-                  labelText: 'Payee',
-                  prefixIcon: Icon(Icons.person),
-                ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ElevatedButton(
+            onPressed: () {
+              // Add transaction logic here
+              if (_selectedAccount != null &&
+                  _selectedCategory != null &&
+                  double.tryParse(_amountController.text) != null) {
+                // Process transaction
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please fill all details')),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepPurple,
+              padding: const EdgeInsets.symmetric(horizontal: 64, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
               ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _notesController,
-                decoration: const InputDecoration(
-                  labelText: 'Notes',
-                  prefixIcon: Icon(Icons.note),
-                ),
-                maxLines: 3,
+            ),
+            child: const Text(
+              'Add Record',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 24),
-
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate() && _selectedCategory != null) {
-                    final DateTime combinedDateTime = DateTime(
-                      _selectedDate.year,
-                      _selectedDate.month,
-                      _selectedDate.day,
-                      _selectedTime.hour,
-                      _selectedTime.minute,
-                    );
-
-                    double amount = double.parse(_amountController.text);
-                    // Apply sign based on transaction type
-                    if (_selectedTransactionType == 0) { // Expense
-                      amount = -amount.abs();
-                    } else { // Income or Transfer
-                      amount = amount.abs();
-                    }
-
-                    final record = Record(
-                      amount: amount,
-                      accountName: _selectedAccount!,
-                      categoryId: _selectedCategory!.id,
-                      dateTime: combinedDateTime,
-                      label: _labelController.text,
-                      notes: _notesController.text,
-                      payee: _payeeController.text,
-                      paymentType: _selectedPaymentType,
-                    );
-
-                    await financeState.addRecord(record);
-                    await _updateAccountBalance(financeState, _selectedAccount!, amount);
-
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text('Add Record'),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
