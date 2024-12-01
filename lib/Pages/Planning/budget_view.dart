@@ -1,3 +1,4 @@
+import 'package:finance_apk/backend/Categories.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../backend/budgets.dart';
@@ -5,7 +6,6 @@ import '../../backend/records.dart';
 import '../../backend/database_helper.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
-
 import 'budgets_edit.dart';
 
 class BudgetViewPage extends StatefulWidget {
@@ -68,12 +68,11 @@ class _BudgetViewPageState extends State<BudgetViewPage> with SingleTickerProvid
   void _calculateMetrics() {
     if (_relevantRecords.isEmpty) return;
 
-    final totalSpent = _relevantRecords.fold(0.0, (sum, record) => sum + record.amount);
-    final daysInPeriod = _getDaysInPeriod();
+    final totalSpent = _relevantRecords.fold(0.0, (sum, record) => sum - record.amount);
     final daysElapsed = _getDaysElapsed();
 
     _dailyAverage = totalSpent / daysElapsed;
-    _dailyRecommended = (widget.budget.totalAmount - totalSpent) / (daysInPeriod - daysElapsed);
+    _dailyRecommended = (widget.budget.totalAmount - totalSpent) / (_getDaysInPeriod() - daysElapsed+1);
   }
 
   int _getDaysInPeriod() {
@@ -250,95 +249,251 @@ class _BudgetViewPageState extends State<BudgetViewPage> with SingleTickerProvid
   }
 
   void _generateTrendData() {
-    final spendingByDay = <DateTime, double>{};
-    final forecastByDay = <DateTime, double>{};
+    if (_relevantRecords.isEmpty) {
+      _spendingTrend = List.generate(7, (index) => FlSpot(index.toDouble(), 0.0));
+      return;
+    }
 
+    final spendingByDay = <DateTime, double>{};
+
+    // Group records by day and sum their amounts
     for (var record in _relevantRecords) {
-      final date = DateTime(record.dateTime.year, record.dateTime.month, record.dateTime.day);
-      spendingByDay[date] = (spendingByDay[date] ?? 0) + record.amount;
+      final dayKey = DateTime(record.dateTime.year, record.dateTime.month, record.dateTime.day);
+      spendingByDay[dayKey] = (spendingByDay[dayKey] ?? 0) + record.amount;
     }
 
     final now = DateTime.now();
-    final daysInPeriod = _getDaysInPeriod();
-    final daysElapsed = _getDaysElapsed();
-    final dailyAverage = spendingByDay.values.fold(0.0, (sum, amount) => sum + amount) / daysElapsed;
+    final startOfWeek = now.subtract(Duration(days: now.weekday));
 
-    for (int i = 0; i < daysInPeriod; i++) {
-      final date = now.subtract(Duration(days: daysInPeriod - i - 1));
-      forecastByDay[date] = dailyAverage * (i + 1);
-    }
+    // Generate cumulative spending trend
+    _spendingTrend = List.generate(7, (index) {
+      final currentDay = startOfWeek.add(Duration(days: index));
+      final dayKey = DateTime(currentDay.year, currentDay.month, currentDay.day);
 
-    _spendingTrend = spendingByDay.entries
-        .map((e) => FlSpot(
-      e.key.millisecondsSinceEpoch.toDouble(),
-      e.value,
-    ))
-        .toList()
-      ..sort((a, b) => a.x.compareTo(b.x));
+      // Calculate cumulative spending up to and including this day
+      final cumulativeSpending = spendingByDay.entries
+          .where((entry) =>
+          entry.key.isBefore(dayKey.add(const Duration(days: 1))))
+          .fold(0.0, (sum, entry) => sum - entry.value);
 
-    _forecastTrend = forecastByDay.entries
-        .map((e) => FlSpot(
-      e.key.millisecondsSinceEpoch.toDouble(),
-      e.value,
-    ))
-        .toList()
-      ..sort((a, b) => a.x.compareTo(b.x));
+      return FlSpot(index.toDouble(), cumulativeSpending);
+    });
   }
 
   Widget _buildTrendGraph() {
+    if (_spendingTrend.isEmpty) {
+      return const Card(
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    const brightColor = Colors.green;
+    const minY = 0.0;
+    final maxY = widget.budget.totalAmount * 1.1;
+
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SizedBox(
-          height: 200,
-          child: LineChart(
-            LineChartData(
-              gridData: const FlGridData(show: false),
-              titlesData: FlTitlesData(
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) {
-                      final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                      switch (widget.budget.period) {
-                        case 'weekly':
-                          return Text(DateFormat('EEE').format(date));
-                        case 'monthly':
-                          return Text(DateFormat('MM/dd').format(date));
-                        case 'yearly':
-                          return Text(DateFormat('MMM').format(date));
-                        default:
-                          return Text(DateFormat('MM/dd').format(date));
-                      }
-                    },
+      elevation: 2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 16, top: 16, right: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'SPENDING TREND',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-              ),
-              borderData: FlBorderData(show: false),
-              lineBarsData: [
-                LineChartBarData(
-                  spots: _spendingTrend,
-                  isCurved: true,
-                  color: Colors.green,
-                  dotData: const FlDotData(show: false),
-                ),
-                LineChartBarData(
-                  spots: _forecastTrend,
-                  isCurved: true,
-                  color: Colors.blue,
-                  isStrokeCapRound: true,
-                  dashArray: [5, 5],
-                  dotData: const FlDotData(show: false),
-                ),
+                SizedBox(height: 8),
               ],
             ),
           ),
-        ),
+          SizedBox(
+            height: 250,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 10, top: 16),
+              child: LineChart(
+                LineChartData(
+                  minX: 0,
+                  maxX: _getPeriodMaxX(),
+                  minY: minY,
+                  maxY: maxY,
+                  gridData: const FlGridData(show: false),
+                  lineTouchData: LineTouchData(
+                    enabled: true,
+                    touchTooltipData: LineTouchTooltipData(
+                      getTooltipColor: (spot) => Theme.of(context).colorScheme.primaryContainer,
+                      tooltipRoundedRadius: 8,
+                      tooltipPadding: const EdgeInsets.all(8),
+                      getTooltipItems: (touchedSpots) {
+                        return touchedSpots.map((spot) {
+                          final date = _getDateFromSpotIndex(spot.x);
+                          return LineTooltipItem(
+                            '${DateFormat('MMM d').format(date)}\n₹${spot.y.toStringAsFixed(2)}',
+                            TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimaryContainer,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                            ),
+                          );
+                        }).toList();
+                      },
+                    ),
+                  ),
+                  titlesData: FlTitlesData(
+                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: widget.budget.totalAmount / 4,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            '₹${value.toStringAsFixed(0)}',
+                            style: TextStyle(
+                              color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.4),
+                              fontSize: 8,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: _getBottomTitleWidget,
+                      ),
+                    ),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  extraLinesData: ExtraLinesData(
+                    horizontalLines: [
+                      HorizontalLine(
+                        y: widget.budget.totalAmount,
+                        color: Colors.white.withOpacity(0.3),
+                        dashArray: [5, 5],
+                        strokeWidth: 1,
+                      ),
+                    ],
+                  ),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: _spendingTrend,
+                      isCurved: true,
+                      curveSmoothness: 0.35,
+                      color: brightColor,
+                      barWidth: 2.5,
+                      dotData: const FlDotData(show: false),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            brightColor.withOpacity(0.15),
+                            brightColor.withOpacity(0.05),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  Widget _getBottomTitleWidget(double value, TitleMeta meta) {
+    final date = _getDateFromSpotIndex(value);
+
+    switch (widget.budget.period) {
+      case 'weekly':
+        final weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        if (value >= 0 && value < 7) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: Text(
+              weekDays[value.toInt()],
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.4),
+                fontSize: 12,
+              ),
+            ),
+          );
+        }
+        return const Text('');
+
+      case 'monthly':
+        if (value % 6 == 0) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: Text(
+              DateFormat('MM/dd').format(date),
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.4),
+                fontSize: 12,
+              ),
+            ),
+          );
+        }
+        return const Text('');
+
+      case 'yearly':
+        return Padding(
+          padding: const EdgeInsets.only(top: 3),
+          child: Text(
+            DateFormat('MMM').format(date),
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.4),
+              fontSize: 12,
+            ),
+          ),
+        );
+
+      default:
+        return const Text('');
+    }
+  }
+
+  DateTime _getDateFromSpotIndex(double index) {
+    final now = DateTime.now();
+
+    switch (widget.budget.period) {
+      case 'weekly':
+        return now.subtract(Duration(days: now.weekday - 1 - index.toInt()));
+
+      case 'monthly':
+        return DateTime(now.year, now.month, index.toInt() + 1);
+
+      case 'yearly':
+        return DateTime(now.year, index.toInt() + 1, 15);
+
+      default:
+        return now;
+    }
+  }
+
+  double _getPeriodMaxX() {
+    switch (widget.budget.period) {
+      case 'weekly':
+        return 6; // 7 days (0-6)
+
+      case 'monthly':
+        return DateTime(DateTime.now().year, DateTime.now().month + 1, 0).day.toDouble();
+
+      case 'yearly':
+        return 11; // 12 months (0-11)
+
+      default:
+        return 1;
+    }
   }
 
   Widget _buildLegendItem(String label, Color color) {
@@ -416,18 +571,37 @@ class _BudgetViewPageState extends State<BudgetViewPage> with SingleTickerProvid
   }
 
   Widget _buildRecordsTab() {
-    return ListView.builder(
-      itemCount: _relevantRecords.length,
-      itemBuilder: (context, index) {
-        final record = _relevantRecords[index];
-        return ListTile(
+  return ListView.builder(
+    itemCount: _relevantRecords.length,
+    itemBuilder: (context, index) {
+      final record = _relevantRecords[index];
+      return Card(
+        margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+        child: ListTile(
+          leading: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: categories[record.categoryId].color,
+              borderRadius: BorderRadius.circular(8.0), // Curved edges
+            ),
+            child: Center(
+              child: Center(
+                child: IconTheme(
+                  data: const IconThemeData(color: Colors.white),
+                  child: categories[record.categoryId].icon,
+                ),
+              ),
+            ),
+          ),
           title: Text('₹${record.amount.toStringAsFixed(2)}'),
           subtitle: Text(DateFormat('MMM dd, yyyy').format(record.dateTime)),
           trailing: Text(record.paymentType),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
 
   @override
   void dispose() {

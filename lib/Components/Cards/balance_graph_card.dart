@@ -7,11 +7,13 @@ import '../../Pages/theme_provider.dart';
 import '../../backend/database_helper.dart';
 
 class AccountBalanceGraph extends StatefulWidget {
+  const AccountBalanceGraph({Key? key}) : super(key: key);
+
   @override
-  _AccountBalanceGraphState createState() => _AccountBalanceGraphState();
+  AccountBalanceGraphState createState() => AccountBalanceGraphState();
 }
 
-class _AccountBalanceGraphState extends State<AccountBalanceGraph> {
+class AccountBalanceGraphState extends State<AccountBalanceGraph> {
   List<FlSpot> _balanceData = [];
   double percentageChange = 0.0;
   bool isIncrease = true;
@@ -19,69 +21,69 @@ class _AccountBalanceGraphState extends State<AccountBalanceGraph> {
   @override
   void initState() {
     super.initState();
-    _fetchAccountBalances();
+    fetchAccountBalances();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _fetchAccountBalances();
+    fetchAccountBalances();
   }
 
-  Future<void> _fetchAccountBalances() async {
-    final db = DatabaseHelper();
-    final accounts = await db.getAccounts();
-    final records = await db.getRecords();
+  Future<void> fetchAccountBalances() async {
+  final db = DatabaseHelper();
+  final accounts = await db.getAccounts();
+  final records = await db.getRecords();
 
-    final today = DateTime.now();
-    final thirtyDaysAgo = today.subtract(const Duration(days: 30));
+  final today = DateTime.now();
+  final thirtyDaysAgo = today.subtract(const Duration(days: 30));
 
-    double totalBalance = 0;
-    for (final account in accounts) {
-      totalBalance += account.balance;
-    }
+  double totalBalance = 0;
+  for (final account in accounts) {
+    totalBalance += account.balance;
+  }
 
-    Map<DateTime, double> dailyBalances = {};
-    double runningBalance = totalBalance;
+  Map<DateTime, double> dailyBalances = {};
+  double runningBalance = totalBalance;
 
-    // Add today's balance
-    dailyBalances[today] = totalBalance;
+  // Calculate balances for past days including today
+  for (var i = 0; i <= 30; i++) {
+    final date = today.subtract(Duration(days: i));
+    final dateOnly = DateTime(date.year, date.month, date.day);
 
-    // Calculate balances for past days
-    for (var i = 0; i < 30; i++) {
-      final date = today.subtract(Duration(days: i));
-      final dateOnly = DateTime(date.year, date.month, date.day);
-
-      for (final record in records) {
-        if (DateFormat('yyyy-MM-dd').format(record.dateTime) ==
-            DateFormat('yyyy-MM-dd').format(date)) {
-          runningBalance -= record.amount;
-        }
+    for (final record in records) {
+      if (DateFormat('yyyy-MM-dd').format(record.dateTime) ==
+          DateFormat('yyyy-MM-dd').format(date)) {
+        runningBalance -= record.amount;
       }
-
-      dailyBalances[dateOnly] = runningBalance;
     }
 
-    // Convert to FlSpots
-    final spots = dailyBalances.entries
-        .map((entry) => FlSpot(
-      30 - today.difference(entry.key).inDays.toDouble(),
-      entry.value,
-    ))
-        .toList();
-
-    spots.sort((a, b) => a.x.compareTo(b.x));
-
-    final initialBalance = spots.first.y;
-    final currentTotalBalance = spots.last.y;
-    percentageChange = ((currentTotalBalance - initialBalance) / initialBalance) * 100;
-    isIncrease = percentageChange >= 0;
-
-    setState(() {
-      _balanceData = spots;
-    });
+    dailyBalances[dateOnly] = runningBalance;
   }
 
+  final date = today.subtract(const Duration(days: 0));
+  final dateOnly = DateTime(date.year, date.month, date.day);
+  dailyBalances[dateOnly] = totalBalance;
+  // Convert to FlSpots
+  final spots = dailyBalances.entries
+      .map((entry) => FlSpot(
+            30 - today.difference(entry.key).inDays.toDouble(),
+            entry.value,
+          ))
+      .toList();
+
+  spots.sort((a, b) => a.x.compareTo(b.x));
+
+  final initialBalance = spots.first.y;
+  final currentTotalBalance = spots.last.y;
+  totalBalance = currentTotalBalance; // Set total balance to current total balance
+  percentageChange = ((currentTotalBalance - initialBalance) / initialBalance) * 100;
+  isIncrease = percentageChange >= 0;
+
+  setState(() {
+    _balanceData = spots;
+  });
+}
   @override
   Widget build(BuildContext context) {
     if (_balanceData.isEmpty) {

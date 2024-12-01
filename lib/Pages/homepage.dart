@@ -441,18 +441,18 @@ class HomePageState extends State<HomePage> {
                 ),
               ), // Dot Indicator
               const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.only(left: 10, right: 10),
+              const Padding(
+                padding: EdgeInsets.only(left: 10, right: 10),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const ExpensesAnalyticsCard(),
-                    const SizedBox(height: 10),
-                    const RecentRecordsCard(),
-                    const SizedBox(height: 10),
+                    ExpensesAnalyticsCard(),
+                    SizedBox(height: 10),
+                    RecentRecordsCard(),
+                    SizedBox(height: 10),
                     AccountBalanceGraph(),
-                    const SizedBox(height: 10),
-                    const Card(
+                    SizedBox(height: 10),
+                    Card(
                       elevation: 3,
                       child: SizedBox(
                         height: 220,
