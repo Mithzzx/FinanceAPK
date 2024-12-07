@@ -5,6 +5,7 @@ import 'accounts.dart';
 import 'budgets.dart';
 import 'goals.dart';
 import 'records.dart';
+import 'debts.dart';
 
 class DatabaseHelper {
     static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -86,6 +87,22 @@ class DatabaseHelper {
           ON UPDATE CASCADE
       )
     ''');
+
+        await db.execute('''
+      CREATE TABLE Debts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT,
+        accountName TEXT NOT NULL,
+        amount REAL NOT NULL,
+        date TEXT NOT NULL,
+        dueDate TEXT NOT NULL,
+        FOREIGN KEY (accountName) REFERENCES Accounts (name)
+          ON DELETE CASCADE
+          ON UPDATE CASCADE
+      )
+    ''');
+
     }
 
 // Account operations
@@ -172,6 +189,37 @@ class DatabaseHelper {
             {'spentAmount': newAmount},
             where: 'id = ?',
             whereArgs: [budgetId],
+        );
+    }
+
+    // Debt operations
+    Future<void> insertDebt(Debt debt) async {
+        final db = await database;
+        await db.insert('Debts', debt.toMap());
+    }
+
+    Future<List<Debt>> getDebts() async {
+        final db = await database;
+        final List<Map<String, dynamic>> maps = await db.query('Debts');
+        return List.generate(maps.length, (i) => Debt.fromMap(maps[i]));
+    }
+
+    Future<void> updateDebt(Debt debt) async {
+        final db = await database;
+        await db.update(
+            'Debts',
+            debt.toMap(),
+            where: 'id = ?',
+            whereArgs: [debt.id],
+        );
+    }
+
+    Future<void> deleteDebt(int debtId) async {
+        final db = await database;
+        await db.delete(
+            'Debts',
+            where: 'id = ?',
+            whereArgs: [debtId],
         );
     }
 }
