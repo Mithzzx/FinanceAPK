@@ -1,6 +1,8 @@
 import 'package:finance_apk/Pages/recordspage.dart';
 import 'package:flutter/material.dart';
 
+import 'debts_page.dart';
+
 class MorePage extends StatefulWidget {
   @override
   State<MorePage> createState() => MorePageState();
@@ -38,6 +40,25 @@ class MorePageState extends State<MorePage> {
                 const Color.fromARGB(255, 221, 116, 179),
                     () {
                   // Add navigation or action for Support & Donate card
+                }
+            ),
+            _buildCard(
+                'Debt',
+                Icons.money_off,
+                const Color.fromARGB(255, 255, 87, 34),
+                    () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const DebtsPage()),
+                  );
+                }
+            ),
+            _buildCard(
+                'Settings',
+                Icons.settings,
+                const Color.fromARGB(255, 33, 150, 243),
+                    () {
+                  // Add navigation or action for Settings card
                 }
             ),
           ],

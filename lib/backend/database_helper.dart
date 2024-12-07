@@ -230,18 +230,22 @@ class FinanceState extends ChangeNotifier {
     List<Record> _records = [];
     List<Goal> _goals = [];
     List<Budget> _budgets = [];
+    List<Debt> _debts = [];
+
     final DatabaseHelper _db = DatabaseHelper();
 
     List<Account> get accounts => _accounts;
     List<Record> get records => _records;
     List<Goal> get goals => _goals;
     List<Budget> get budgets => _budgets;
+    List<Debt> get debts => _debts;
 
     Future<void> loadData() async {
         _accounts = await _db.getAccounts();
         _records = await _db.getRecords();
         _goals = await _db.getGoals();
         _budgets = await _db.getBudgets();
+        _debts = await _db.getDebts();
         await _updateAllBudgetSpentAmounts();
         notifyListeners();
     }
@@ -428,5 +432,25 @@ class FinanceState extends ChangeNotifier {
 
             await updateBudgetSpentAmount(budget.id!, spentAmount);
         }
+    }
+
+    Future<void> addDebt(Debt debt) async {
+        await _db.insertDebt(debt);
+        await loadData();
+    }
+
+    Future<void> updateDebt(Debt debt) async {
+        await _db.updateDebt(debt);
+        await loadData();
+    }
+
+    Future<void> deleteDebt(int debtId) async {
+        await _db.deleteDebt(debtId);
+        _debts.removeWhere((debt) => debt.id == debtId);
+        notifyListeners();
+    }
+
+    Future<List<Debt>> getDebts() async {
+        return _debts;
     }
 }
